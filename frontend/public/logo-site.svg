@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60">
+  <g>
+    <path d="M20 8 L36 14 V30 C36 42 28 50 20 54 C12 50 4 42 4 30 V14 Z" fill="#0B2545" stroke="#C99B3D" stroke-width="1.5"/>
+    <path d="M13 30 L18 36 L28 22" fill="none" stroke="#C99B3D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="48" y="27" font-family="Poppins, Arial, sans-serif" font-size="15" font-weight="700" fill="#0B2545">SIAHSSR</text>
+  <text x="48" y="42" font-family="Merriweather, Georgia, serif" font-size="8.5" fill="#5b6b7f">Sai Institute for Arts, Humanities &amp; Social Science Research</text>
+</svg>

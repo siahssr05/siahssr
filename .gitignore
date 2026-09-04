@@ -1,0 +1,12 @@
+**/node_modules
+**/.env
+frontend/dist
+backend/uploads/papers/*
+backend/uploads/receipts/*
+backend/uploads/board/*
+backend/uploads/logos/*
+backend/uploads/documents/*
+backend/uploads/notices/*
+!backend/uploads/**/.gitkeep
+*.log
+.DS_Store

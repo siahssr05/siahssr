@@ -1,0 +1,72 @@
+:root {
+  --navy: #0B2545;
+  --navy-light: #13315c;
+  --gold: #C99B3D;
+  --emerald: #0E5C4A;
+  --cream: #FAF7F0;
+}
+
+body {
+  font-family: "Merriweather", Georgia, serif;
+  background: var(--cream);
+  color: #22303f;
+}
+
+h1, h2, h3, h4, h5, .brand-font {
+  font-family: "Poppins", Arial, sans-serif;
+}
+
+.navbar-siahssr {
+  background: #fff;
+  border-bottom: 3px solid var(--gold);
+}
+
+.btn-navy {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
+.btn-navy:hover {
+  background: var(--navy-light);
+  color: #fff;
+}
+
+.btn-outline-navy {
+  border-color: var(--navy);
+  color: var(--navy);
+}
+.btn-outline-navy:hover {
+  background: var(--navy);
+  color: #fff;
+}
+
+.text-gold { color: var(--gold); }
+.bg-navy { background: var(--navy); }
+.bg-emerald { background: var(--emerald); }
+
+.hero-section {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+  color: #fff;
+}
+
+.card-siahssr {
+  border: 1px solid #e5e0d3;
+  border-radius: 10px;
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+.card-siahssr:hover {
+  box-shadow: 0 8px 24px rgba(11,37,69,.12);
+  transform: translateY(-2px);
+}
+
+.badge-status-submitted { background: #6c757d; }
+.badge-status-under_review { background: #C99B3D; color: #fff; }
+.badge-status-accepted { background: #0E5C4A; }
+.badge-status-published { background: #0B2545; }
+.badge-status-rejected { background: #a33a3a; }
+.badge-status-withdrawn { background: #8a8378; }
+
+footer.site-footer {
+  background: var(--navy);
+  color: #cdd6e3;
+}

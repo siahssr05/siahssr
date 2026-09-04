@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <title>Events &amp; News — SIAHSSR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="/css/theme.css" rel="stylesheet" />
+</head>
+<body data-page="events">
+  <div id="app-navbar"></div>
+
+  <main class="container py-5">
+    <h1 class="brand-font mb-4">Events &amp; News</h1>
+    <p class="text-muted mb-5">Conferences, workshops, seminars, and training programmes from the institute.</p>
+    <p class="text-muted" id="empty-message" style="display:none;">No events posted yet.</p>
+    <div id="upcoming-block" style="display:none;">
+      <h4 class="brand-font mb-3">Upcoming</h4>
+      <div class="row g-4 mb-5" id="upcoming-list"></div>
+    </div>
+    <div id="past-block" style="display:none;">
+      <h4 class="brand-font mb-3">Past &amp; Ongoing</h4>
+      <div class="row g-4" id="past-list"></div>
+    </div>
+  </main>
+
+  <div id="app-footer"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/partials.js"></script>
+  <script src="/js/pages/events.js"></script>
+</body>
+</html>

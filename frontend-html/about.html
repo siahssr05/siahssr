@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <title>About — SIAHSSR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="/css/theme.css" rel="stylesheet" />
+</head>
+<body data-page="about">
+  <div id="app-navbar"></div>
+
+  <main class="container py-5">
+    <h1 class="brand-font mb-3">About SIAHSSR</h1>
+    <p class="lead text-muted" id="about-tagline"></p>
+
+    <div class="card-siahssr p-4 mb-5 bg-navy text-white" id="vision-block" style="display:none;">
+      <h5 class="brand-font text-gold mb-2">Our Vision</h5>
+      <p class="mb-0" id="vision-text"></p>
+    </div>
+
+    <div id="core-values-block" style="display:none;">
+      <h3 class="brand-font mb-3">Core Values</h3>
+      <div class="row g-2 mb-5" id="core-values-list"></div>
+    </div>
+
+    <div id="mission-block" style="display:none;">
+      <h3 class="brand-font mb-3">Our Mission</h3>
+      <div class="row g-3 mb-5" id="mission-list"></div>
+    </div>
+
+    <h3 class="brand-font mb-3">Objectives</h3>
+    <div class="row g-3 mb-5" id="objectives-list">
+      <p class="text-muted">Objectives will appear here once added by the admin.</p>
+    </div>
+
+    <div id="documents-block" style="display:none;">
+      <h3 class="brand-font mb-3">Institute Documents</h3>
+      <div class="list-group" id="documents-list"></div>
+    </div>
+  </main>
+
+  <div id="app-footer"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/partials.js"></script>
+  <script src="/js/pages/about.js"></script>
+</body>
+</html>

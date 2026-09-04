@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 60" width="220" height="60">
+  <rect x="4" y="10" width="40" height="40" rx="8" fill="#0E5C4A"/>
+  <path d="M14 38 V22 M24 38 V16 M34 38 V26" stroke="#E7C873" stroke-width="3" stroke-linecap="round"/>
+  <text x="52" y="26" font-family="Poppins, Arial, sans-serif" font-size="13" font-weight="700" fill="#0E5C4A">JMRH</text>
+  <text x="52" y="40" font-family="Merriweather, Georgia, serif" font-size="7.5" fill="#5b6b7f">Journal of Multidisciplinary</text>
+  <text x="52" y="50" font-family="Merriweather, Georgia, serif" font-size="7.5" fill="#5b6b7f">Research Horizon</text>
+</svg>

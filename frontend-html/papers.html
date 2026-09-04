@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <title>Papers Archive — SIAHSSR</title>
+  <link rel="alternate" type="application/rss+xml" title="SIAHSSR — Recently Published" href="/feed.xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="/css/theme.css" rel="stylesheet" />
+</head>
+<body data-page="papers">
+  <div id="app-navbar"></div>
+
+  <main class="container py-5">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+      <h1 class="brand-font mb-0">Papers Archive</h1>
+      <div class="btn-group">
+        <button class="btn btn-sm btn-navy" id="mode-search" type="button">Search</button>
+        <button class="btn btn-sm btn-outline-navy" id="mode-browse" type="button">Browse by Volume/Issue</button>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-md-8">
+        <input class="form-control" id="search-input" placeholder="Search by title or keyword…" />
+      </div>
+      <div class="col-md-4">
+        <select class="form-select" id="journal-filter">
+          <option value="">All Journals</option>
+        </select>
+      </div>
+    </div>
+
+    <p class="text-muted" id="empty-message" style="display:none;">No published papers found.</p>
+    <div id="search-view" class="row g-4"></div>
+    <div id="browse-view" style="display:none;"></div>
+  </main>
+
+  <div id="app-footer"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/partials.js"></script>
+  <script src="/js/pages/papers.js"></script>
+</body>
+</html>

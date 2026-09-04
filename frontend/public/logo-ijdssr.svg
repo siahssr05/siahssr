@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 60" width="220" height="60">
+  <circle cx="24" cy="30" r="20" fill="#0B2545"/>
+  <path d="M14 34 L20 24 L24 30 L30 20 L34 34" fill="none" stroke="#C99B3D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="52" y="26" font-family="Poppins, Arial, sans-serif" font-size="13" font-weight="700" fill="#0B2545">IJDSSR</text>
+  <text x="52" y="40" font-family="Merriweather, Georgia, serif" font-size="7.5" fill="#5b6b7f">Intl. Journal of Development &amp;</text>
+  <text x="52" y="50" font-family="Merriweather, Georgia, serif" font-size="7.5" fill="#5b6b7f">Social Sciences Research</text>
+</svg>

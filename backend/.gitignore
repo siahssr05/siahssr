@@ -1,0 +1,15 @@
+node_modules
+.env
+uploads/papers/*
+uploads/receipts/*
+uploads/board/*
+uploads/logos/*
+!uploads/papers/.gitkeep
+!uploads/receipts/.gitkeep
+!uploads/board/.gitkeep
+!uploads/logos/.gitkeep
+*.log
+uploads/documents/*
+!uploads/documents/.gitkeep
+uploads/notices/*
+!uploads/notices/.gitkeep

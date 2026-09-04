@@ -1,0 +1,4 @@
+/* Base resets — brand styling lives in theme.css */
+* { box-sizing: border-box; }
+body { margin: 0; }
+a { color: inherit; }

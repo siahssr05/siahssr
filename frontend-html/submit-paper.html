@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <title>Submit a Paper — SIAHSSR</title>
+  <meta name="description" content="Submit your paper to SIAHSSR — pay the ₹899 processing fee via UPI, then upload your article. No account needed." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="/css/theme.css" rel="stylesheet" />
+
+  <style>
+    .submit-steps { counter-reset: submit-step; }
+    .submit-step { position: relative; padding-left: 3rem; }
+    .submit-step::before {
+      counter-increment: submit-step;
+      content: counter(submit-step);
+      position: absolute; left: 0; top: 0;
+      width: 2.1rem; height: 2.1rem; border-radius: 50%;
+      background: var(--siahssr-navy, #0f2748); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-family: "Poppins", sans-serif;
+    }
+    .submit-step.step-done::before { content: "\F633"; font-family: "bootstrap-icons"; background: #1c7c3c; }
+    .submit-step:not(:last-child) { margin-bottom: 1.75rem; }
+    .pay-amount { font-size: 2.1rem; font-weight: 700; }
+    .upi-qr-box { width: 190px; height: 190px; border: 1px solid #e3ddd0; border-radius: 10px; padding: 10px; background: #fff; }
+    .upi-qr-box img { width: 100%; height: 100%; object-fit: contain; }
+    .upi-id-row { font-family: monospace; font-size: 1.05rem; }
+    fieldset[disabled] { opacity: 0.55; }
+  </style>
+</head>
+<body data-page="submit-paper">
+  <div id="app-navbar"></div>
+
+  <main class="container py-5" style="max-width:720px;">
+    <div id="submit-result" style="display:none;" class="text-center py-5">
+      <i class="bi bi-check-circle-fill text-success" style="font-size:3.5rem;"></i>
+      <h2 class="brand-font mt-3 mb-3">Submission Received</h2>
+      <p id="submit-result-message" class="text-muted"></p>
+      <a href="/" class="btn btn-navy mt-2">Back to Home</a>
+    </div>
+
+    <div id="submit-form-wrap">
+      <h1 class="brand-font mb-2">Submit a Paper</h1>
+      <p class="text-muted mb-4">No account needed — pay the processing fee, then upload your article. We'll email you once we've reviewed it.</p>
+      <div id="submit-error" class="alert alert-danger" style="display:none;"></div>
+
+      <div class="submit-steps">
+        <!-- STEP 1: PAY -->
+        <div class="submit-step mb-4">
+          <div class="card-siahssr p-4">
+            <h5 class="brand-font mb-3">Pay the processing fee</h5>
+            <div class="d-flex flex-wrap gap-4 align-items-center">
+              <div class="upi-qr-box flex-shrink-0">
+                <img src="/upi-qr.png" alt="UPI QR code to pay ₹899 to Dr R Paranthaman" />
+              </div>
+              <div class="flex-grow-1">
+                <p class="pay-amount text-navy mb-1">₹899</p>
+                <p class="small text-muted mb-2">Scan the QR with any UPI app (GPay, PhonePe, Paytm, BHIM…) — the amount fills in automatically. Or pay by hand to the UPI ID below.</p>
+                <div class="upi-id-row d-flex align-items-center gap-2 mb-1">
+                  <span>sreeparanthaman-5@okicici</span>
+                  <button type="button" class="btn btn-sm btn-outline-navy" id="copy-upi"><i class="bi bi-clipboard"></i></button>
+                </div>
+                <p class="small text-muted mb-0">Payee: Dr R Paranthaman · Canara Bank</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 2: CONFIRM PAYMENT -->
+        <div class="submit-step mb-4" id="step-confirm">
+          <div class="card-siahssr p-4">
+            <h5 class="brand-font mb-3">Confirm your payment</h5>
+            <div class="mb-3">
+              <label class="form-label">UPI transaction / reference number</label>
+              <input class="form-control" id="payment-reference" placeholder="e.g. 302841927456" />
+              <div class="form-text">Find this in your UPI app's payment history right after paying.</div>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="payment-confirmed" />
+              <label class="form-check-label" for="payment-confirmed">
+                I have completed the ₹899 payment to the UPI ID above.
+              </label>
+            </div>
+            <p class="small text-muted mt-3 mb-0">
+              <i class="bi bi-info-circle me-1"></i>Our team verifies each payment reference manually before your paper moves into review — this isn't an automatic gateway.
+            </p>
+          </div>
+        </div>
+
+        <!-- STEP 3: SUBMISSION DETAILS -->
+        <div class="submit-step">
+          <div class="card-siahssr p-4">
+            <h5 class="brand-font mb-3">Your details &amp; article</h5>
+            <fieldset id="submit-fieldset" disabled>
+              <form id="submit-form">
+                <div class="mb-3">
+                  <label class="form-label">Author's Name</label>
+                  <input class="form-control" name="author_name" required />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Designation</label>
+                  <input class="form-control" name="designation" placeholder="e.g. Assistant Professor" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Institute Name &amp; Address</label>
+                  <textarea class="form-control" name="institute_address" rows="2" required></textarea>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Email id</label>
+                  <input type="email" class="form-control" name="email" required />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Journal</label>
+                  <select class="form-select" name="journal_id" id="journal-select" required>
+                    <option value="">Select a journal…</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Title of the Paper</label>
+                  <input class="form-control" name="title" required />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Contact No</label>
+                  <input class="form-control" name="contact_no" required />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Article (Word .docx only, max 15MB)</label>
+                  <input type="file" accept=".docx" class="form-control" id="paper-file-input" required />
+                </div>
+                <div id="captcha-slot"></div>
+                <button class="btn btn-navy w-100" id="submit-btn" type="submit">Submit Paper</button>
+              </form>
+            </fieldset>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="app-footer"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/partials.js"></script>
+  <script src="/js/captcha.js"></script>
+  <script src="/js/pages/submit-paper.js"></script>
+</body>
+</html>
