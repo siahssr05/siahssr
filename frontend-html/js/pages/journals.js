@@ -15,7 +15,7 @@ api
           <h4 class="brand-font">${esc(j.name)}</h4>
           <p class="text-muted small mb-2">${esc(j.short_name)}${j.issn ? ` · ISSN ${esc(j.issn)}` : ""}</p>
           <p>${esc(j.description)}</p>
-          <p class="small text-muted">Current: Vol. ${esc(j.current_volume)}, Issue ${esc(j.current_issue)}</p>
+          <p class="small text-muted"></p>
           <a href="/journal-detail.html?id=${j.id}" class="btn btn-navy mt-2 align-self-start">View Journal</a>
         </div>
       </div>`;

@@ -37,7 +37,7 @@ if (!journalId) {
         <p class="lead">${esc(journal.description)}</p>
 
         <div class="card-siahssr p-4 mb-4 bg-white">
-          <h5 class="brand-font text-gold">Call for Papers — Vol. ${esc(journal.current_volume)}, Issue ${esc(journal.current_issue)}</h5>
+          <h5 class="brand-font text-gold">Call for Papers </h5>
           <p class="mb-1">${esc(journal.cfp_text)}</p>
           ${journal.cfp_deadline ? `<p class="small text-muted mb-0">Deadline: ${formatDate(journal.cfp_deadline)}</p>` : ""}
           <a href="/submit-paper.html" class="btn btn-navy mt-3 align-self-start">Submit a Paper</a>
