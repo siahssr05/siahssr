@@ -190,25 +190,31 @@
 
             <h5 class="brand-font mb-3">Your details & article</h5>
 
-            <fieldset id="submit-fieldset" disabled>
+           <fieldset id="submit-fieldset" disabled>
 
-              <form id="submit-form">
+  <form id="submit-form">
 
-                <input class="form-control mb-3" name="author_name" placeholder="Author Name" required />
-                <input class="form-control mb-3" name="designation" placeholder="Designation" />
-                <textarea class="form-control mb-3" name="institute_address" placeholder="Institute Address" required></textarea>
-                <input type="email" class="form-control mb-3" name="email" placeholder="Email" required />
-                <input class="form-control mb-3" name="title" placeholder="Paper Title" required />
-                <input class="form-control mb-3" name="contact_no" placeholder="Contact No" required />
+    <input class="form-control mb-3" name="author_name" placeholder="Author Name" required />
+    <input class="form-control mb-3" name="designation" placeholder="Designation" />
+    <textarea class="form-control mb-3" name="institute_address" placeholder="Institute Address" required></textarea>
+    <input type="email" class="form-control mb-3" name="email" placeholder="Email" required />
 
-                <input type="file" class="form-control mb-3" accept=".docx" required />
+    <select class="form-select mb-3" name="journal_id" id="journal-select" required>
+      <option value="">Select a journal…</option>
+    </select>
 
-                <button class="btn btn-navy w-100" type="submit">Submit Paper</button>
+    <input class="form-control mb-3" name="title" placeholder="Paper Title" required />
+    <input class="form-control mb-3" name="contact_no" placeholder="Contact No" required />
 
-              </form>
+    <input type="file" class="form-control mb-3" id="paper-file-input" accept=".docx" required />
 
-            </fieldset>
+    <div id="captcha-slot" class="mb-3"></div>
 
+    <button class="btn btn-navy w-100" id="submit-btn" type="submit">Submit Paper</button>
+
+  </form>
+
+</fieldset>
           </div>
         </div>
 
