@@ -22,7 +22,7 @@ export default function About() {
       <p className="lead text-muted">{settings.tagline}</p>
 
       {settings.vision_text && (
-        <div className="card-siahssr p-4 mb-5 bg-navy text-white">
+        <div className="card-siahssr p-4 mb-5">
           <h5 className="brand-font text-gold mb-2">Our Vision</h5>
           <p className="mb-0">{settings.vision_text}</p>
         </div>
