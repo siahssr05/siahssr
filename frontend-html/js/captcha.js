@@ -7,6 +7,10 @@
 function mountCaptcha(container, label = "Quick check") {
   let token = "";
 
+  if (!container) {
+    console.error('mountCaptcha: container element not found — captcha will not render, but the rest of the page keeps working');
+    return { getPayload: () => ({ captchaToken: "", captchaAnswer: "" }), reset: () => {} };
+  }
   container.innerHTML = `
     <div class="mb-3">
       <label class="form-label small text-muted">${esc(label)}: <span data-captcha-q>…</span></label>
