@@ -34,49 +34,16 @@ h1, h2, h3, h4, h5, .brand-font {
   border-bottom: 3px solid var(--gold);
 }
 
-.navbar-scroll {
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
+.navbar-search-form {
+  min-width: 200px;
 }
-.navbar-scroll::-webkit-scrollbar {
-  height: 4px;
+.navbar-search-form .input-group-text {
+  color: #9aa5b1;
 }
-.navbar-scroll::-webkit-scrollbar-thumb {
-  background: rgba(11, 37, 69, 0.25);
-  border-radius: 2px;
-}
-.navbar-scroll .navbar-nav {
-  flex-wrap: nowrap;
-}
-.navbar-scroll .nav-link,
-.navbar-scroll .btn {
-  white-space: nowrap;
+@media (max-width: 575.98px) {
+  .navbar-search-form { min-width: 160px; }
 }
 
-@media (max-width: 767.98px) {
-  #navbar-logo {
-    height: 34px;
-  }
-  .navbar-search-item {
-    display: none;
-  }
-  .navbar-scroll .navbar-nav {
-    gap: 0.3rem !important;
-  }
-  .navbar-scroll .nav-link {
-    font-size: 0.72rem;
-    padding: 0.2rem 0.32rem;
-  }
-  .navbar-scroll .btn {
-    font-size: 0.68rem;
-    padding: 0.3rem 0.5rem;
-  }
-  .navbar-scroll .btn i {
-    margin-right: 0.2rem !important;
-  }
-}
 .navbar-inner {
   display: flex;
   align-items: center;
@@ -505,6 +472,4 @@ footer.site-footer {
   .auth-mobile-brand img { height: 34px; width: 34px; object-fit: contain; }
   .auth-shell-form { padding: 1.5rem 1rem 2.5rem; }
   .auth-card { padding: 2rem 1.5rem; }
-
-  
 }
