@@ -39,8 +39,29 @@ h1, h2, h3, h4, h5, .brand-font {
 .navbar-search-form .input-group-text {
   color: #9aa5b1;
 }
-@media (max-width: 991.98px) {
-  .navbar-search-form { margin: 0.5rem 0; min-width: 0; }
+@media (max-width: 575.98px) {
+  .navbar-search-form { min-width: 160px; }
+}
+
+.navbar-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+.navbar-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+.navbar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(11, 37, 69, 0.25);
+  border-radius: 2px;
+}
+.navbar-scroll .navbar-nav {
+  flex-wrap: nowrap;
+}
+.navbar-scroll .nav-link,
+.navbar-scroll .btn {
+  white-space: nowrap;
 }
 
 .btn-navy {
