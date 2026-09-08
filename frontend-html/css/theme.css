@@ -82,11 +82,62 @@ h1, h2, h3, h4, h5, .brand-font {
   border-color: var(--navy);
   color: var(--navy);
 }
+
 .btn-outline-navy:hover {
   background: var(--navy);
   color: #fff;
 }
-
+.navbar-nav .btn {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.navbar-nav .btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 55%;
+  transform: translateX(220%);
+  animation: navbar-btn-shimmer 3s ease-in-out infinite;
+  pointer-events: none;
+}
+.navbar-nav .btn-navy::after {
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0) 35%,
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0) 65%,
+    transparent 100%
+  );
+}
+.navbar-nav .btn-outline-navy::after {
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    rgba(11, 37, 69, 0) 35%,
+    rgba(11, 37, 69, 0.18) 50%,
+    rgba(11, 37, 69, 0) 65%,
+    transparent 100%
+  );
+}
+@keyframes navbar-btn-shimmer {
+  0% {
+    transform: translateX(220%);
+  }
+  45% {
+    transform: translateX(-220%);
+  }
+  100% {
+    transform: translateX(-220%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .navbar-nav .btn::after {
+    animation: none;
+    content: none;
+  }
+}
 .hero-section {
   background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
   color: #fff;
