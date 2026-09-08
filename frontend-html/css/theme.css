@@ -15,6 +15,7 @@ body {
   font-family: "Merriweather", Georgia, serif;
   background: var(--cream);
   color: #22303f;
+  overflow-x: hidden;
 }
 
 a { color: inherit; }
@@ -74,6 +75,29 @@ h1, h2, h3, h4, h5, .brand-font {
   }
   .navbar-scroll .btn i {
     margin-right: 0.2rem !important;
+  }
+}
+.navbar-inner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  row-gap: 0.4rem;
+  min-width: 0;
+}
+.navbar-nav {
+  min-width: 0;
+}
+
+@media (max-width: 767.98px) {
+  #navbar-logo {
+    height: 40px;
+  }
+  .navbar-search-item {
+    display: none;
+  }
+  .navbar-nav {
+    gap: 0.5rem !important;
+    row-gap: 0.4rem !important;
   }
 }
 
