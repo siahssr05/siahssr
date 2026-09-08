@@ -73,6 +73,7 @@ async function runMigrations() {
   try {
     await connection.query(sql);
     await addMissingColumns(connection, dbName);
+    await relaxSubmissionsPaymentColumns(connection, dbName);
     await dedupeSeedData(connection);
     console.log(`Database schema is up to date (database: ${dbName}).`);
   } finally {
@@ -109,6 +110,42 @@ async function addMissingColumns(connection, dbName) {
   for (const { column, definition } of NEW_PAPER_COLUMNS) {
     if (!existing.has(column)) {
       await connection.query(`ALTER TABLE papers ADD COLUMN \`${column}\` ${definition}`);
+    }
+  }
+}
+
+// The public paper-submission form used to require a ₹899 UPI payment
+// (reference number + confirmation checkbox) before it would unlock, and
+// `submissions.payment_reference`/`payment_amount` were NOT NULL to match.
+// That payment step was removed from the form at the site owner's request,
+// so the code stopped sending those two fields on INSERT — which would
+// otherwise fail with a "doesn't have a default value" error against a
+// database created before this change. This makes both columns nullable
+// on boot (schema.sql's own CREATE TABLE already reflects the new,
+// nullable definition for anyone provisioning a fresh database — this is
+// only for a database that already exists with the old NOT NULL columns).
+// information_schema-gated so it's a no-op once a database has already
+// been relaxed. Old paid submissions keep their stored reference/amount;
+// only the constraint changes, not the data.
+const RELAXED_PAYMENT_COLUMNS = [
+  { column: "payment_reference", definition: "VARCHAR(150) DEFAULT NULL" },
+  { column: "payment_amount", definition: "DECIMAL(10,2) DEFAULT NULL" },
+];
+
+async function relaxSubmissionsPaymentColumns(connection, dbName) {
+  const [rows] = await connection.query(
+    `SELECT COLUMN_NAME, IS_NULLABLE FROM information_schema.COLUMNS
+     WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'submissions'
+       AND COLUMN_NAME IN ('payment_reference', 'payment_amount')`,
+    [dbName]
+  );
+  const nullableByColumn = new Map(rows.map((r) => [r.COLUMN_NAME, r.IS_NULLABLE === "YES"]));
+  for (const { column, definition } of RELAXED_PAYMENT_COLUMNS) {
+    // Only ALTER a column that exists and is still NOT NULL — skips cleanly
+    // on a database that doesn't have the `submissions` table yet (schema.sql
+    // above just created it nullable already) and on one already relaxed.
+    if (nullableByColumn.has(column) && nullableByColumn.get(column) === false) {
+      await connection.query(`ALTER TABLE submissions MODIFY \`${column}\` ${definition}`);
     }
   }
 }
