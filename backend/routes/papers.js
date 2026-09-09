@@ -3,7 +3,7 @@ const path = require("path");
 const fs = require("fs");
 const rateLimit = require("express-rate-limit");
 const pool = require("../config/db");
-const { requireAuth, requireRole } = require("../middleware/auth");
+const { requireAuth, requireRole, optionalAuth } = require("../middleware/auth");
 const { uploadPaper } = require("../utils/upload");
 const { generateSubmissionReceipt, generatePublicationCertificate } = require("../utils/receiptGenerator");
 const { sendMail } = require("../utils/mailer");
@@ -172,14 +172,22 @@ router.get("/:id", async (req, res) => {
 });
 
 // ---------- DOWNLOAD PAPER FILE (access-controlled) ----------
-router.get("/:id/download", requireAuth, async (req, res) => {
+// Published papers are downloadable by anyone, signed in or not — the paper's
+// own detail page (paper-detail.html) is public and links straight here, so
+// this can't hard-require a login the way an author/reviewer-only route
+// would. optionalAuth fills in req.user when a valid session is present
+// (needed below for the owner/reviewer/admin checks on a NON-published
+// paper) but, unlike requireAuth, doesn't reject a signed-out visitor
+// outright — that used to be exactly why a guest clicking "Download Paper"
+// on a published paper got "Not authenticated" here.
+router.get("/:id/download", optionalAuth, async (req, res) => {
   try {
     const [[paper]] = await pool.query("SELECT * FROM papers WHERE id = ?", [req.params.id]);
     if (!paper) return res.status(404).json({ error: "Paper not found" });
 
-    const isOwner = paper.author_id === req.user.id;
-    const isReviewer = paper.reviewer_id === req.user.id;
-    const isAdmin = req.user.role === "admin";
+    const isOwner = !!req.user && paper.author_id === req.user.id;
+    const isReviewer = !!req.user && paper.reviewer_id === req.user.id;
+    const isAdmin = !!req.user && req.user.role === "admin";
     const isPublic = paper.status === "published";
 
     if (!isPublic && !isOwner && !isReviewer && !isAdmin) {
