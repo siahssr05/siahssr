@@ -16,12 +16,17 @@ function makeStorage(subfolder) {
   });
 }
 
+// Extension-only check, deliberately not also requiring a matching MIME
+// type: browsers (mobile Chrome/Samsung Internet especially, and in-app
+// browsers like WhatsApp/Facebook) are inconsistent about what `mimetype`
+// they report for .docx — it's technically a zip container, so it's common
+// to see `application/octet-stream`, `application/zip`, or nothing at all
+// instead of the real OOXML type. Requiring both silently rejected real
+// paper submissions from mobile visitors (the majority of this form's
+// traffic) before they ever reached the database or the editor's inbox.
 const paperFilter = (req, file, cb) => {
-  const isDocxMime =
-    file.mimetype === "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
   const isDocxExt = file.originalname.toLowerCase().endsWith(".docx");
-
-  if (isDocxMime && isDocxExt) cb(null, true);
+  if (isDocxExt) cb(null, true);
   else cb(new Error("Only Word (.docx) files are allowed for paper submissions"));
 };
 
@@ -34,6 +39,25 @@ const imageFilter = (req, file, cb) => {
 const uploadPaper = multer({
   storage: makeStorage("papers"),
   fileFilter: paperFilter,
+  limits: { fileSize: 15 * 1024 * 1024 }, // 15MB
+});
+
+// Same "papers" folder as uploadPaper above, but also allows a PDF — used
+// only for the admin-only "manually add a paper" upload (an admin attaching
+// a paper's file directly, e.g. one that arrived by email or in print,
+// rather than through the public docx-only submission form). The public
+// submission form and the logged-in author submission route both keep using
+// the stricter uploadPaper/paperFilter above unchanged — this one is
+// intentionally separate so widening it can never accidentally widen those.
+const paperOrPdfFilter = (req, file, cb) => {
+  const name = file.originalname.toLowerCase();
+  if (name.endsWith(".docx") || name.endsWith(".pdf")) cb(null, true);
+  else cb(new Error("Only Word (.docx) or PDF (.pdf) files are allowed"));
+};
+
+const uploadPaperOrPdf = multer({
+  storage: makeStorage("papers"),
+  fileFilter: paperOrPdfFilter,
   limits: { fileSize: 15 * 1024 * 1024 }, // 15MB
 });
 
@@ -59,11 +83,8 @@ const uploadNotice = multer({
 // submissions, and no PDFs anywhere in the system (receipts included; see
 // utils/receiptGenerator.js).
 const documentFilter = (req, file, cb) => {
-  const isDocxMime =
-    file.mimetype === "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
   const isDocxExt = file.originalname.toLowerCase().endsWith(".docx");
-
-  if (isDocxMime && isDocxExt) cb(null, true);
+  if (isDocxExt) cb(null, true);
   else cb(new Error("Only Word (.docx) files are allowed"));
 };
 
@@ -73,4 +94,4 @@ const uploadDocument = multer({
   limits: { fileSize: 20 * 1024 * 1024 }, // 20MB
 });
 
-module.exports = { uploadPaper, uploadImage, uploadLogo, uploadNotice, uploadDocument };
+module.exports = { uploadPaper, uploadPaperOrPdf, uploadImage, uploadLogo, uploadNotice, uploadDocument };
