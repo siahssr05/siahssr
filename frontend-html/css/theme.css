@@ -83,7 +83,7 @@ h1, h2, h3, h4, h5, .brand-font {
 .navbar-nav .nav-link {
   padding: 0.35rem 0.7rem;
   font-size: 0.85rem;
-  border-radius: 999px;
+  border-radius: 10px;
   color: var(--navy);
   font-weight: 500;
   background: rgba(11, 37, 69, 0.05);
