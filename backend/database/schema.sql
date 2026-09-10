@@ -124,9 +124,11 @@ CREATE TABLE IF NOT EXISTS editorial_board (
   name VARCHAR(150) NOT NULL,
   designation VARCHAR(255) DEFAULT NULL,
   affiliation VARCHAR(255) DEFAULT NULL,
-  photo_path VARCHAR(255) DEFAULT NULL,
+    photo_path VARCHAR(255) DEFAULT NULL,
   bio TEXT,
   expertise VARCHAR(255) DEFAULT NULL,
+  email VARCHAR(150) DEFAULT NULL,
+  phone VARCHAR(30) DEFAULT NULL,
   journal_id INT DEFAULT NULL,
   sort_order INT DEFAULT 0,
   FOREIGN KEY (journal_id) REFERENCES journals(id) ON DELETE SET NULL
