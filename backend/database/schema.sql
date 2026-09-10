@@ -58,8 +58,8 @@ CREATE TABLE IF NOT EXISTS papers (
   abstract TEXT DEFAULT NULL,
   keywords VARCHAR(500) DEFAULT NULL,
   author_id INT DEFAULT NULL,
-  author_name VARCHAR(150) DEFAULT NULL,
-  author_designation VARCHAR(255) DEFAULT NULL,
+  author_name VARCHAR(1000) DEFAULT NULL,
+  author_designation VARCHAR(500) DEFAULT NULL,
   author_institute TEXT DEFAULT NULL,
   author_email VARCHAR(150) DEFAULT NULL,
   author_contact VARCHAR(30) DEFAULT NULL,
@@ -99,8 +99,8 @@ CREATE TABLE IF NOT EXISTS papers (
 -- via published_paper_id.
 CREATE TABLE IF NOT EXISTS submissions (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  author_name VARCHAR(150) NOT NULL,
-  designation VARCHAR(255) DEFAULT NULL,
+  author_name VARCHAR(1000) NOT NULL,
+  designation VARCHAR(500) DEFAULT NULL,
   institute_address TEXT NOT NULL,
   email VARCHAR(150) NOT NULL,
   title VARCHAR(500) NOT NULL,
@@ -184,7 +184,7 @@ INSERT INTO site_settings (setting_key, setting_value) VALUES
  ('hero_subtitle', 'Research, Innovation and Social Transformation'),
  ('tagline', 'Research, Innovation and Social Transformation'),
  ('vision_text', 'To become a globally recognised centre of excellence in arts, humanities, and social science research by fostering innovation, academic excellence, ethical values, and sustainable societal development through interdisciplinary research, education, and collaboration.'),
- ('contact_phone_1', '+91 96902 82239'),
+ ('contact_phone_1', '+91 96002 82239'),
  ('contact_phone_2', '+91 63830 63291'),
  ('contact_email', 'siahssr05@gmail.com'),
  ('contact_website', 'https://siahssr.co.in/'),
@@ -241,10 +241,7 @@ ON DUPLICATE KEY UPDATE title=title;
 INSERT INTO journals (name, short_name, issn, description, current_volume, current_issue, cfp_text, cfp_deadline) VALUES
  ('International Journal of Development and Social Sciences Research', 'IJDSSR', NULL,
   'A peer-reviewed journal publishing original research across development studies and the social sciences.',
-  '1', '1', 'Submissions open for the upcoming issue. We welcome original research, reviews, and case studies.', NULL),
- ('Journal of Multidisciplinary Research Horizon', 'JMRH', NULL,
-  'A multidisciplinary journal covering arts, humanities, and social science research from a cross-disciplinary lens.',
-  '1', '1 (Inaugural)', 'Call for Papers — Inaugural Issue. We invite submissions from researchers across all disciplines.', NULL)
+  '1', '1', 'Submissions open for the upcoming issue. We welcome original research, reviews, and case studies.', NULL)
 ON DUPLICATE KEY UPDATE name=name;
 
 -- ========== CONTACT MESSAGES (submitted via the public Contact page form) ==========
