@@ -24,7 +24,17 @@ body {
 }
 
 a { color: inherit; }
-
+/* Global responsive-image safety net. Every image on the site already sits
+   in a sized frame (.journal-logo-frame, .notice-card-img, the board photo
+   circle, ...) with its own explicit constraint, but this is a backstop for
+   any image that doesn't — an admin-uploaded photo/logo at full native
+   resolution would otherwise render at its real pixel size and overflow a
+   narrow phone screen. max-width instead of a fixed width so it never
+   enlarges a small image past its own size either. */
+img, svg {
+  max-width: 100%;
+  height: auto;
+}
 h1, h2, h3, h4, h5, .brand-font {
   font-family: "Poppins", Arial, sans-serif;
 }
