@@ -360,6 +360,22 @@ if (adminUser) {
   // ---------------- JOURNALS ----------------
   const FALLBACK_LOGO = { IJDSSR: "/logo-ijdssr.png", JMRH: "/logo-jmrh.svg" };
 
+  function journalFormHtml(j, idPrefix) {
+    return `
+      <div class="col-md-6"><label class="form-label small text-muted">Full name</label><input class="form-control form-control-sm" name="name" placeholder="Full name" value="${esc(j.name || "")}" required /></div>
+      <div class="col-md-2"><label class="form-label small text-muted">Short name</label><input class="form-control form-control-sm" name="short_name" placeholder="Short name" value="${esc(j.short_name || "")}" required /></div>
+      <div class="col-md-4"><label class="form-label small text-muted">ISSN</label><input class="form-control form-control-sm" name="issn" placeholder="ISSN" value="${esc(j.issn || "")}" /></div>
+      <div class="col-12"><label class="form-label small text-muted">Description</label><textarea class="form-control form-control-sm" name="description" placeholder="Description" rows="2">${esc(j.description || "")}</textarea></div>
+      <div class="col-md-3"><label class="form-label small text-muted">Current Volume</label><input class="form-control form-control-sm" name="current_volume" value="${esc(j.current_volume || "")}" /></div>
+      <div class="col-md-3"><label class="form-label small text-muted">Current Issue</label><input class="form-control form-control-sm" name="current_issue" value="${esc(j.current_issue || "")}" /></div>
+      <div class="col-12"><label class="form-label small text-muted">Call for Papers Text</label><textarea class="form-control form-control-sm" name="cfp_text" rows="2">${esc(j.cfp_text || "")}</textarea></div>
+      <div class="col-md-4"><label class="form-label small text-muted">CFP Deadline</label><input type="date" class="form-control form-control-sm" name="cfp_deadline" value="${j.cfp_deadline ? esc(String(j.cfp_deadline).slice(0, 10)) : ""}" /></div>
+      <div class="col-12 d-flex gap-2 mt-1">
+        <button class="btn btn-sm btn-navy" type="submit">${idPrefix === "add" ? "Add Journal" : "Save Changes"}</button>
+        ${idPrefix !== "add" ? `<button class="btn btn-sm btn-outline-navy" type="button" data-cancel-edit-journal="${j.id}">Cancel</button>` : ""}
+      </div>`;
+  }
+
   function renderJournalsTab() {
     api
       .get("/journals")
@@ -367,30 +383,30 @@ if (adminUser) {
         contentEl.innerHTML = `
           <div class="card-siahssr p-4 mb-4">
             <h6 class="fw-bold mb-3">Add Journal</h6>
-            <form id="journal-form" class="row g-2">
-              <div class="col-md-6"><input class="form-control" name="name" placeholder="Full name" required /></div>
-              <div class="col-md-2"><input class="form-control" name="short_name" placeholder="Short name" required /></div>
-              <div class="col-md-4"><input class="form-control" name="description" placeholder="Description" /></div>
-              <div class="col-12"><button class="btn btn-navy" type="submit">Add Journal</button></div>
-            </form>
+            <form id="journal-form" class="row g-2">${journalFormHtml({}, "add")}</form>
           </div>
           <div id="journals-list"></div>`;
 
         document.getElementById("journals-list").innerHTML = journals
           .map(
             (j) => `
-          <div class="card-siahssr p-3 mb-3 d-flex flex-row align-items-center gap-3">
-            <div class="journal-logo-frame-xs">
-              <img src="${esc(j.logo_path ? fileUrl(j.logo_path) : FALLBACK_LOGO[j.short_name] || "/logo-site.png")}" alt="" />
+          <div class="card-siahssr p-3 mb-3">
+            <div class="d-flex flex-row align-items-center gap-3">
+              <div class="journal-logo-frame-xs">
+                <img src="${esc(j.logo_path ? fileUrl(j.logo_path) : FALLBACK_LOGO[j.short_name] || "/logo-site.png")}" alt="" />
+              </div>
+              <div class="flex-grow-1">
+                <div class="fw-bold">${esc(j.name)}</div>
+                <div class="small text-muted">${esc(j.short_name)} · Vol ${esc(j.current_volume)}, Issue ${esc(j.current_issue)}</div>
+              </div>
+              <label class="btn btn-sm btn-outline-navy mb-0">
+                Change Logo
+                <input type="file" accept="image/*" hidden data-logo="${j.id}" />
+              </label>
+              <button class="btn btn-sm btn-outline-navy" data-toggle-edit-journal="${j.id}">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" data-remove-journal="${j.id}">Delete</button>
             </div>
-            <div class="flex-grow-1">
-              <div class="fw-bold">${esc(j.name)}</div>
-              <div class="small text-muted">${esc(j.short_name)} · Vol ${esc(j.current_volume)}, Issue ${esc(j.current_issue)}</div>
-            </div>
-            <label class="btn btn-sm btn-outline-navy mb-0">
-              Change Logo
-              <input type="file" accept="image/*" hidden data-logo="${j.id}" />
-            </label>
+            <form class="d-none row g-2 mt-3 pt-3 border-top" data-edit-journal-form="${j.id}" id="edit-journal-form-${j.id}">${journalFormHtml(j, "edit")}</form>
           </div>`
           )
           .join("");
@@ -398,9 +414,13 @@ if (adminUser) {
         document.getElementById("journal-form").addEventListener("submit", async (e) => {
           e.preventDefault();
           const fd = new FormData(e.target);
-          await api.post("/journals", Object.fromEntries(fd.entries()));
-          e.target.reset();
-          renderJournalsTab();
+          try {
+            await api.post("/journals", Object.fromEntries(fd.entries()));
+            e.target.reset();
+            renderJournalsTab();
+          } catch (err) {
+            alert(err.data?.error || "Failed to add journal");
+          }
         });
 
         contentEl.querySelectorAll("[data-logo]").forEach((input) => {
@@ -413,6 +433,40 @@ if (adminUser) {
             renderJournalsTab();
           });
         });
+        contentEl.querySelectorAll("[data-toggle-edit-journal]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            document.getElementById(`edit-journal-form-${btn.getAttribute("data-toggle-edit-journal")}`).classList.toggle("d-none");
+          });
+        });
+        contentEl.querySelectorAll("[data-cancel-edit-journal]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            document.getElementById(`edit-journal-form-${btn.getAttribute("data-cancel-edit-journal")}`).classList.add("d-none");
+          });
+        });
+        contentEl.querySelectorAll("[data-edit-journal-form]").forEach((form) => {
+          form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const id = form.getAttribute("data-edit-journal-form");
+            const fd = new FormData(form);
+            try {
+              await api.put(`/journals/${id}`, Object.fromEntries(fd.entries()));
+              renderJournalsTab();
+            } catch (err) {
+              alert(err.data?.error || "Failed to update journal");
+            }
+          });
+        });
+        contentEl.querySelectorAll("[data-remove-journal]").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            if (!confirmDestructive("Delete this journal? This also deletes every paper, submission and editorial board entry linked to it. This cannot be undone.")) return;
+            try {
+              await api.del(`/journals/${btn.getAttribute("data-remove-journal")}`);
+              renderJournalsTab();
+            } catch (err) {
+              alert(err.data?.error || "Failed to delete journal");
+            }
+          });
+        });
       })
       .catch(() => {
         contentEl.innerHTML = `<p class="text-danger">Failed to load journals.</p>`;
@@ -420,33 +474,49 @@ if (adminUser) {
   }
 
   // ---------------- EDITORIAL BOARD ----------------
+  function boardMemberFormHtml(m, journals, idPrefix) {
+    const journalOptions =
+      `<option value="">— none —</option>` +
+      journals.map((j) => `<option value="${j.id}" ${String(j.id) === String(m.journal_id) ? "selected" : ""}>${esc(j.name)} (${esc(j.short_name)})</option>`).join("");
+    return `
+      <div class="row g-2">
+        <div class="col-md-4"><label class="form-label small text-muted">Name</label><input class="form-control form-control-sm" name="name" value="${esc(m.name || "")}" required /></div>
+        <div class="col-md-4"><label class="form-label small text-muted">Designation</label><input class="form-control form-control-sm" name="designation" value="${esc(m.designation || "")}" /></div>
+        <div class="col-md-4"><label class="form-label small text-muted">Affiliation</label><input class="form-control form-control-sm" name="affiliation" value="${esc(m.affiliation || "")}" /></div>
+        <div class="col-md-8"><label class="form-label small text-muted">Expertise</label><input class="form-control form-control-sm" name="expertise" value="${esc(m.expertise || "")}" /></div>
+        <div class="col-md-4"><label class="form-label small text-muted">Journal</label><select class="form-select form-select-sm" name="journal_id">${journalOptions}</select></div>
+        <div class="col-12"><label class="form-label small text-muted">Bio</label><textarea class="form-control form-control-sm" name="bio" rows="2">${esc(m.bio || "")}</textarea></div>
+        <div class="col-md-6"><label class="form-label small text-muted">Photo ${idPrefix === "edit" ? "(leave blank to keep current)" : ""}</label><input type="file" accept="image/*" class="form-control form-control-sm" name="photo" /></div>
+        <div class="col-12 d-flex gap-2 mt-1">
+          <button class="btn btn-sm btn-navy" type="submit">${idPrefix === "add" ? "Add Member" : "Save Changes"}</button>
+          ${idPrefix !== "add" ? `<button class="btn btn-sm btn-outline-navy" type="button" data-cancel-edit-member="${m.id}">Cancel</button>` : ""}
+        </div>
+      </div>`;
+  }
+
   function renderBoardTab() {
-    api
-      .get("/board")
-      .then((members) => {
+    Promise.all([api.get("/board"), api.get("/journals")])
+      .then(([members, journals]) => {
         contentEl.innerHTML = `
           <div class="card-siahssr p-4 mb-4">
             <h6 class="fw-bold mb-3">Add Board Member</h6>
-            <form id="board-form" class="row g-2">
-              <div class="col-md-4"><input class="form-control" name="name" placeholder="Name" required /></div>
-              <div class="col-md-4"><input class="form-control" name="designation" placeholder="Designation" /></div>
-              <div class="col-md-4"><input class="form-control" name="affiliation" placeholder="Affiliation" /></div>
-              <div class="col-md-8"><input class="form-control" name="expertise" placeholder="Expertise" /></div>
-              <div class="col-md-4"><input type="file" accept="image/*" class="form-control" name="photo" /></div>
-              <div class="col-12"><button class="btn btn-navy" type="submit">Add Member</button></div>
-            </form>
+            <form id="board-form">${boardMemberFormHtml({}, journals, "add")}</form>
           </div>
           <div id="board-list"></div>`;
 
         document.getElementById("board-list").innerHTML = members
           .map(
             (m) => `
-          <div class="card-siahssr p-3 mb-2 d-flex flex-row align-items-center gap-3">
-            <div class="flex-grow-1">
-              <div class="fw-bold">${esc(m.name)}</div>
-              <div class="small text-muted">${esc(m.designation)} — ${esc(m.affiliation)}</div>
+          <div class="card-siahssr p-3 mb-2">
+            <div class="d-flex flex-row align-items-center gap-3">
+              <div class="flex-grow-1">
+                <div class="fw-bold">${esc(m.name)}</div>
+                <div class="small text-muted">${esc(m.designation)} — ${esc(m.affiliation)}</div>
+              </div>
+              <button class="btn btn-sm btn-outline-navy" data-toggle-edit-member="${m.id}">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" data-remove-member="${m.id}">Remove</button>
             </div>
-            <button class="btn btn-sm btn-outline-danger" data-remove-member="${m.id}">Remove</button>
+            <form class="d-none mt-3 pt-3 border-top" id="edit-member-form-${m.id}" data-edit-member-form="${m.id}">${boardMemberFormHtml(m, journals, "edit")}</form>
           </div>`
           )
           .join("");
@@ -454,12 +524,40 @@ if (adminUser) {
         document.getElementById("board-form").addEventListener("submit", async (e) => {
           e.preventDefault();
           const fd = new FormData(e.target);
-          await api.post("/board", fd);
-          renderBoardTab();
+          try {
+            await api.post("/board", fd);
+            renderBoardTab();
+          } catch (err) {
+            alert(err.data?.error || "Failed to add board member");
+          }
+        });
+        contentEl.querySelectorAll("[data-toggle-edit-member]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            document.getElementById(`edit-member-form-${btn.getAttribute("data-toggle-edit-member")}`).classList.toggle("d-none");
+          });
+        });
+        contentEl.querySelectorAll("[data-cancel-edit-member]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            document.getElementById(`edit-member-form-${btn.getAttribute("data-cancel-edit-member")}`).classList.add("d-none");
+          });
+        });
+        contentEl.querySelectorAll("[data-edit-member-form]").forEach((form) => {
+          form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const id = form.getAttribute("data-edit-member-form");
+            const fd = new FormData(form);
+            if (fd.get("photo") && fd.get("photo").size === 0) fd.delete("photo");
+            try {
+              await api.put(`/board/${id}`, fd);
+              renderBoardTab();
+            } catch (err) {
+              alert(err.data?.error || "Failed to update board member");
+            }
+          });
         });
         contentEl.querySelectorAll("[data-remove-member]").forEach((btn) => {
           btn.addEventListener("click", async () => {
-            if (!confirm("Remove this board member?")) return;
+            if (!confirmDestructive("Remove this board member?")) return;
             await api.del(`/board/${btn.getAttribute("data-remove-member")}`);
             renderBoardTab();
           });
@@ -471,17 +569,23 @@ if (adminUser) {
   }
 
   // ---------------- FAQ ----------------
+  function faqFormHtml(f, idPrefix) {
+    return `
+      <div class="col-md-6"><input class="form-control" name="question" placeholder="Question" value="${esc(f.question || "")}" required /></div>
+      <div class="col-md-6"><input class="form-control" name="category" placeholder="Category" value="${esc(f.category || "general")}" /></div>
+      <div class="col-12"><textarea class="form-control" name="answer" placeholder="Answer" required>${esc(f.answer || "")}</textarea></div>
+      <div class="col-12 d-flex gap-2">
+        <button class="btn btn-navy" type="submit">${idPrefix === "add" ? "Add FAQ" : "Save Changes"}</button>
+        ${idPrefix !== "add" ? `<button class="btn btn-outline-navy" type="button" data-cancel-edit-faq="${f.id}">Cancel</button>` : ""}
+      </div>`;
+  }
+
   function renderFaqTab() {
     api
       .get("/faq")
       .then((faqs) => {
         contentEl.innerHTML = `
-          <form id="faq-form" class="card-siahssr p-4 mb-4 row g-2">
-            <div class="col-md-6"><input class="form-control" name="question" placeholder="Question" required /></div>
-            <div class="col-md-6"><input class="form-control" name="category" placeholder="Category" value="general" /></div>
-            <div class="col-12"><textarea class="form-control" name="answer" placeholder="Answer" required></textarea></div>
-            <div class="col-12"><button class="btn btn-navy" type="submit">Add FAQ</button></div>
-          </form>
+          <form id="faq-form" class="card-siahssr p-4 mb-4 row g-2">${faqFormHtml({}, "add")}</form>
           <div id="faq-list"></div>`;
 
         document.getElementById("faq-list").innerHTML = faqs
@@ -490,9 +594,13 @@ if (adminUser) {
           <div class="card-siahssr p-3 mb-2">
             <div class="d-flex justify-content-between">
               <strong>${esc(f.question)}</strong>
-              <button class="btn btn-sm btn-outline-danger" data-remove-faq="${f.id}">Delete</button>
+              <div class="d-flex gap-1">
+                <button class="btn btn-sm btn-outline-navy" data-toggle-edit-faq="${f.id}">Edit</button>
+                <button class="btn btn-sm btn-outline-danger" data-remove-faq="${f.id}">Delete</button>
+              </div>
             </div>
             <p class="small text-muted mb-0">${esc(f.answer)}</p>
+            <form class="d-none row g-2 mt-2 pt-2 border-top" data-edit-faq-form="${f.id}" id="edit-faq-form-${f.id}">${faqFormHtml(f, "edit")}</form>
           </div>`
           )
           .join("");
@@ -500,11 +608,39 @@ if (adminUser) {
         document.getElementById("faq-form").addEventListener("submit", async (e) => {
           e.preventDefault();
           const fd = new FormData(e.target);
-          await api.post("/faq", Object.fromEntries(fd.entries()));
-          renderFaqTab();
+          try {
+            await api.post("/faq", Object.fromEntries(fd.entries()));
+            renderFaqTab();
+          } catch (err) {
+            alert(err.data?.error || "Failed to add FAQ");
+          }
+        });
+        contentEl.querySelectorAll("[data-toggle-edit-faq]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            document.getElementById(`edit-faq-form-${btn.getAttribute("data-toggle-edit-faq")}`).classList.toggle("d-none");
+          });
+        });
+        contentEl.querySelectorAll("[data-cancel-edit-faq]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            document.getElementById(`edit-faq-form-${btn.getAttribute("data-cancel-edit-faq")}`).classList.add("d-none");
+          });
+        });
+        contentEl.querySelectorAll("[data-edit-faq-form]").forEach((form) => {
+          form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const id = form.getAttribute("data-edit-faq-form");
+            const fd = new FormData(form);
+            try {
+              await api.put(`/faq/${id}`, Object.fromEntries(fd.entries()));
+              renderFaqTab();
+            } catch (err) {
+              alert(err.data?.error || "Failed to update FAQ");
+            }
+          });
         });
         contentEl.querySelectorAll("[data-remove-faq]").forEach((btn) => {
           btn.addEventListener("click", async () => {
+            if (!confirmDestructive("Delete this FAQ?")) return;
             await api.del(`/faq/${btn.getAttribute("data-remove-faq")}`);
             renderFaqTab();
           });
@@ -516,38 +652,54 @@ if (adminUser) {
   }
 
   // ---------------- EVENTS & NEWS ----------------
+  const EVENT_TYPES = [
+    { value: "conference", label: "Conference" },
+    { value: "workshop", label: "Workshop" },
+    { value: "training", label: "Training Programme" },
+    { value: "seminar", label: "Seminar" },
+    { value: "other", label: "Other" },
+  ];
+
+  function eventFormHtml(ev, idPrefix) {
+    return `
+      <div class="col-md-6"><input class="form-control" name="title" placeholder="Title" value="${esc(ev.title || "")}" required /></div>
+      <div class="col-md-3">
+        <select class="form-select" name="event_type">
+          ${EVENT_TYPES.map((t) => `<option value="${t.value}" ${t.value === ev.event_type ? "selected" : ""}>${t.label}</option>`).join("")}
+        </select>
+      </div>
+      <div class="col-md-3"><input type="date" class="form-control" name="event_date" value="${ev.event_date ? esc(String(ev.event_date).slice(0, 10)) : ""}" /></div>
+      <div class="col-md-6"><input class="form-control" name="location" placeholder="Location" value="${esc(ev.location || "")}" /></div>
+      <div class="col-12"><textarea class="form-control" name="description" placeholder="Description">${esc(ev.description || "")}</textarea></div>
+      <div class="col-12 d-flex gap-2">
+        <button class="btn btn-navy" type="submit">${idPrefix === "add" ? "Add Event" : "Save Changes"}</button>
+        ${idPrefix !== "add" ? `<button class="btn btn-outline-navy" type="button" data-cancel-edit-event="${ev.id}">Cancel</button>` : ""}
+      </div>`;
+  }
+
   function renderEventsTab() {
     api
       .get("/admin/events")
       .then((events) => {
         contentEl.innerHTML = `
-          <form id="event-form" class="card-siahssr p-4 mb-4 row g-2">
-            <div class="col-md-6"><input class="form-control" name="title" placeholder="Title" required /></div>
-            <div class="col-md-3">
-              <select class="form-select" name="event_type">
-                <option value="conference">Conference</option>
-                <option value="workshop">Workshop</option>
-                <option value="training">Training Programme</option>
-                <option value="seminar">Seminar</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-            <div class="col-md-3"><input type="date" class="form-control" name="event_date" /></div>
-            <div class="col-md-6"><input class="form-control" name="location" placeholder="Location" /></div>
-            <div class="col-12"><textarea class="form-control" name="description" placeholder="Description"></textarea></div>
-            <div class="col-12"><button class="btn btn-navy" type="submit">Add Event</button></div>
-          </form>
+          <form id="event-form" class="card-siahssr p-4 mb-4 row g-2">${eventFormHtml({}, "add")}</form>
           <div id="events-list"></div>`;
 
         document.getElementById("events-list").innerHTML = events
           .map(
             (e) => `
-          <div class="card-siahssr p-3 mb-2 d-flex flex-row justify-content-between align-items-center">
-            <div>
-              <div class="fw-bold">${esc(e.title)} <span class="badge bg-navy ms-1">${esc(e.event_type)}</span></div>
-              <div class="small text-muted">${e.event_date ? formatDate(e.event_date) : "No date set"}${e.location ? ` · ${esc(e.location)}` : ""}</div>
+          <div class="card-siahssr p-3 mb-2">
+            <div class="d-flex flex-row justify-content-between align-items-center">
+              <div>
+                <div class="fw-bold">${esc(e.title)} <span class="badge bg-navy ms-1">${esc(e.event_type)}</span></div>
+                <div class="small text-muted">${e.event_date ? formatDate(e.event_date) : "No date set"}${e.location ? ` · ${esc(e.location)}` : ""}</div>
+              </div>
+              <div class="d-flex gap-1">
+                <button class="btn btn-sm btn-outline-navy" data-toggle-edit-event="${e.id}">Edit</button>
+                <button class="btn btn-sm btn-outline-danger" data-remove-event="${e.id}">Delete</button>
+              </div>
             </div>
-            <button class="btn btn-sm btn-outline-danger" data-remove-event="${e.id}">Delete</button>
+            <form class="d-none row g-2 mt-3 pt-3 border-top" data-edit-event-form="${e.id}" id="edit-event-form-${e.id}">${eventFormHtml(e, "edit")}</form>
           </div>`
           )
           .join("");
@@ -555,9 +707,36 @@ if (adminUser) {
         document.getElementById("event-form").addEventListener("submit", async (ev) => {
           ev.preventDefault();
           const fd = new FormData(ev.target);
-          await api.post("/admin/events", Object.fromEntries(fd.entries()));
-          ev.target.reset();
-          renderEventsTab();
+          try {
+            await api.post("/admin/events", Object.fromEntries(fd.entries()));
+            ev.target.reset();
+            renderEventsTab();
+          } catch (err) {
+            alert(err.data?.error || "Failed to add event");
+          }
+        });
+        contentEl.querySelectorAll("[data-toggle-edit-event]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            document.getElementById(`edit-event-form-${btn.getAttribute("data-toggle-edit-event")}`).classList.toggle("d-none");
+          });
+        });
+        contentEl.querySelectorAll("[data-cancel-edit-event]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            document.getElementById(`edit-event-form-${btn.getAttribute("data-cancel-edit-event")}`).classList.add("d-none");
+          });
+        });
+        contentEl.querySelectorAll("[data-edit-event-form]").forEach((form) => {
+          form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const id = form.getAttribute("data-edit-event-form");
+            const fd = new FormData(form);
+            try {
+              await api.put(`/admin/events/${id}`, Object.fromEntries(fd.entries()));
+              renderEventsTab();
+            } catch (err) {
+              alert(err.data?.error || "Failed to update event");
+            }
+          });
         });
         contentEl.querySelectorAll("[data-remove-event]").forEach((btn) => {
           btn.addEventListener("click", async () => {
@@ -594,7 +773,19 @@ if (adminUser) {
               <img src="${esc(n.image_path)}" alt="${esc(n.title)}" class="notice-card-img mb-2" style="border-radius:6px;" />
               <div class="fw-semibold small flex-grow-1">${esc(n.title)}</div>
               <div class="small text-muted mb-2">${formatDateTime(n.created_at)}</div>
-              <button class="btn btn-sm btn-outline-danger" data-remove-notice="${n.id}">Delete</button>
+              <div class="d-flex gap-1">
+                <button class="btn btn-sm btn-outline-navy" data-toggle-edit-notice="${n.id}">Edit</button>
+                <button class="btn btn-sm btn-outline-danger" data-remove-notice="${n.id}">Delete</button>
+              </div>
+              <form class="d-none row g-2 mt-2 pt-2 border-top" data-edit-notice-form="${n.id}" id="edit-notice-form-${n.id}">
+                <div class="col-12"><input class="form-control form-control-sm" name="title" value="${esc(n.title)}" required /></div>
+                <div class="col-12"><input type="file" accept=".jpg,.jpeg,.png,.webp,.gif" class="form-control form-control-sm" name="image" /></div>
+                <div class="col-12 form-text">Leave the image blank to keep the current one.</div>
+                <div class="col-12 d-flex gap-2">
+                  <button class="btn btn-sm btn-navy" type="submit">Save</button>
+                  <button class="btn btn-sm btn-outline-navy" type="button" data-cancel-edit-notice="${n.id}">Cancel</button>
+                </div>
+              </form>
             </div>
           </div>`
           )
@@ -606,6 +797,30 @@ if (adminUser) {
           if (!fd.get("title") || !fd.get("image") || fd.get("image").size === 0) return;
           await api.post("/admin/notices", fd);
           renderNoticesTab();
+        });
+        contentEl.querySelectorAll("[data-toggle-edit-notice]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            document.getElementById(`edit-notice-form-${btn.getAttribute("data-toggle-edit-notice")}`).classList.toggle("d-none");
+          });
+        });
+        contentEl.querySelectorAll("[data-cancel-edit-notice]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            document.getElementById(`edit-notice-form-${btn.getAttribute("data-cancel-edit-notice")}`).classList.add("d-none");
+          });
+        });
+        contentEl.querySelectorAll("[data-edit-notice-form]").forEach((form) => {
+          form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const id = form.getAttribute("data-edit-notice-form");
+            const fd = new FormData(form);
+            if (fd.get("image") && fd.get("image").size === 0) fd.delete("image");
+            try {
+              await api.put(`/admin/notices/${id}`, fd);
+              renderNoticesTab();
+            } catch (err) {
+              alert(err.data?.error || "Failed to update notice");
+            }
+          });
         });
         contentEl.querySelectorAll("[data-remove-notice]").forEach((btn) => {
           btn.addEventListener("click", async () => {
@@ -815,9 +1030,9 @@ if (adminUser) {
               <input class="form-control" data-new-item="${section}" placeholder="New ${SECTION_LABELS[section].toLowerCase().slice(0, -1)}…" />
               <button class="btn btn-navy" data-add-item="${section}">Add</button>
             </div>
-            <div style="max-height:180px;overflow-y:auto;" data-item-list="${section}">
+            <div style="max-height:220px;overflow-y:auto;" data-item-list="${section}">
               ${itemsFor(section)
-                .map((o) => `<div class="d-flex justify-content-between border-bottom py-1"><span class="small">${esc(o.text)}</span><button class="btn btn-sm btn-outline-danger" data-remove-item="${o.id}">×</button></div>`)
+                .map((o) => `<div class="d-flex justify-content-between align-items-center border-bottom py-1"><span class="small">${esc(o.text)}</span><span class="d-flex gap-1"><button class="btn btn-sm btn-outline-navy py-0 px-1" data-edit-item="${o.id}" title="Edit">✎</button><button class="btn btn-sm btn-outline-danger py-0 px-2" data-remove-item="${o.id}">×</button></span></div>`)
                 .join("")}
             </div>
           </div>`
@@ -863,7 +1078,28 @@ if (adminUser) {
                   <button class="btn btn-navy" type="submit">Add Announcement</button>
                 </form>
                 <div id="announcements-list">
-                  ${announcements.map((a) => `<div class="d-flex justify-content-between border-bottom py-1"><span class="small fw-semibold">${esc(a.title)}</span><button class="btn btn-sm btn-outline-danger" data-remove-announcement="${a.id}">×</button></div>`).join("")}
+                  ${announcements
+                    .map(
+                      (a) => `
+                  <div class="border-bottom py-1">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="small fw-semibold">${esc(a.title)}</span>
+                      <span class="d-flex gap-1">
+                        <button class="btn btn-sm btn-outline-navy py-0 px-1" data-toggle-edit-announcement="${a.id}" title="Edit">✎</button>
+                        <button class="btn btn-sm btn-outline-danger py-0 px-2" data-remove-announcement="${a.id}">×</button>
+                      </span>
+                    </div>
+                    <form class="d-none mt-2 mb-2" data-edit-announcement-form="${a.id}" id="edit-announcement-form-${a.id}">
+                      <input class="form-control form-control-sm mb-2" name="title" value="${esc(a.title)}" required />
+                      <textarea class="form-control form-control-sm mb-2" name="content">${esc(a.content || "")}</textarea>
+                      <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-navy" type="submit">Save</button>
+                        <button class="btn btn-sm btn-outline-navy" type="button" data-cancel-edit-announcement="${a.id}">Cancel</button>
+                      </div>
+                    </form>
+                  </div>`
+                    )
+                    .join("")}
                 </div>
               </div>
             </div>
@@ -896,8 +1132,24 @@ if (adminUser) {
             renderSiteContentTab();
           });
         });
+        contentEl.querySelectorAll("[data-edit-item]").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const id = btn.getAttribute("data-edit-item");
+            const item = aboutItems.find((i) => String(i.id) === id);
+            if (!item) return;
+            const text = prompt("Edit text:", item.text);
+            if (text === null || !text.trim()) return;
+            try {
+              await api.put(`/admin/about-items/${id}`, { text, sort_order: item.sort_order || 0 });
+              renderSiteContentTab();
+            } catch (err) {
+              alert(err.data?.error || "Failed to update item");
+            }
+          });
+        });
         contentEl.querySelectorAll("[data-remove-item]").forEach((btn) => {
           btn.addEventListener("click", async () => {
+            if (!confirmDestructive("Delete this item?")) return;
             await api.del(`/admin/about-items/${btn.getAttribute("data-remove-item")}`);
             renderSiteContentTab();
           });
@@ -911,8 +1163,34 @@ if (adminUser) {
           await api.post("/admin/announcements", payload);
           renderSiteContentTab();
         });
+        contentEl.querySelectorAll("[data-toggle-edit-announcement]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            document.getElementById(`edit-announcement-form-${btn.getAttribute("data-toggle-edit-announcement")}`).classList.toggle("d-none");
+          });
+        });
+        contentEl.querySelectorAll("[data-cancel-edit-announcement]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            document.getElementById(`edit-announcement-form-${btn.getAttribute("data-cancel-edit-announcement")}`).classList.add("d-none");
+          });
+        });
+        contentEl.querySelectorAll("[data-edit-announcement-form]").forEach((form) => {
+          form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const id = form.getAttribute("data-edit-announcement-form");
+            const fd = new FormData(form);
+            const payload = Object.fromEntries(fd.entries());
+            if (!payload.title || !payload.title.trim()) return;
+            try {
+              await api.put(`/admin/announcements/${id}`, payload);
+              renderSiteContentTab();
+            } catch (err) {
+              alert(err.data?.error || "Failed to update announcement");
+            }
+          });
+        });
         contentEl.querySelectorAll("[data-remove-announcement]").forEach((btn) => {
           btn.addEventListener("click", async () => {
+            if (!confirmDestructive("Delete this announcement?")) return;
             await api.del(`/admin/announcements/${btn.getAttribute("data-remove-announcement")}`);
             renderSiteContentTab();
           });
