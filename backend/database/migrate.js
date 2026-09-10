@@ -72,7 +72,8 @@ async function runMigrations() {
 
   try {
     await connection.query(sql);
-    await addMissingColumns(connection, dbName);
+    await addMissingColumns(connection, dbName, "papers", NEW_PAPER_COLUMNS);
+    await addMissingColumns(connection, dbName, "editorial_board", NEW_BOARD_COLUMNS);
     await widenAuthorNameColumns(connection, dbName);
     await relaxSubmissionsPaymentColumns(connection, dbName);
     await seedFaqs(connection);
@@ -103,15 +104,26 @@ const NEW_PAPER_COLUMNS = [
   { column: "submission_id", definition: "INT DEFAULT NULL" },
 ];
 
-async function addMissingColumns(connection, dbName) {
+// editorial_board had no dedicated email/phone columns — that contact info
+// only ever existed buried inside the free-text designation/affiliation/bio
+// fields, which is what made the public Editorial Board page unreadable.
+// The frontend now extracts a best-effort email/phone out of that text as a
+// fallback, but the real fix is giving the admin proper fields to enter (or
+// correct) each member's contact info directly — these two columns are that.
+const NEW_BOARD_COLUMNS = [
+  { column: "email", definition: "VARCHAR(150) DEFAULT NULL" },
+  { column: "phone", definition: "VARCHAR(30) DEFAULT NULL" },
+];
+
+async function addMissingColumns(connection, dbName, table, columns) {
   const [existingCols] = await connection.query(
-    `SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'papers'`,
-    [dbName]
+    `SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?`,
+    [dbName, table]
   );
   const existing = new Set(existingCols.map((r) => r.COLUMN_NAME));
-  for (const { column, definition } of NEW_PAPER_COLUMNS) {
+  for (const { column, definition } of columns) {
     if (!existing.has(column)) {
-      await connection.query(`ALTER TABLE papers ADD COLUMN \`${column}\` ${definition}`);
+      await connection.query(`ALTER TABLE \`${table}\` ADD COLUMN \`${column}\` ${definition}`);
     }
   }
 }
