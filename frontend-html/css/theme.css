@@ -24,6 +24,7 @@ body {
 }
 
 a { color: inherit; }
+
 /* Global responsive-image safety net. Every image on the site already sits
    in a sized frame (.journal-logo-frame, .notice-card-img, the board photo
    circle, ...) with its own explicit constraint, but this is a backstop for
@@ -35,6 +36,10 @@ img, svg {
   max-width: 100%;
   height: auto;
 }
+/* Any image with explicit inline/CSS width+height (the sized frames above)
+   overrides this cleanly since a more specific rule always wins — this only
+   ever affects an image that has no other sizing at all. */
+
 h1, h2, h3, h4, h5, .brand-font {
   font-family: "Poppins", Arial, sans-serif;
 }
@@ -147,10 +152,22 @@ h1, h2, h3, h4, h5, .brand-font {
   min-width: 0;
 }
 
+/* Base logo size for all widths. Without this, only the mobile override
+   below constrained it, so on tablets/laptops the global
+   img,svg{height:auto} rule near the top of this file (a safety net for
+   admin-uploaded photos) won the fight against the HTML height="48"
+   attribute and let the logo render at its full native pixel size —
+   which is where the huge desktop logo bug came from. width:auto keeps
+   it from stretching out of its own aspect ratio. */
+#navbar-logo {
+  height: 48px;
+  width: auto;
+}
+
 @media (max-width: 767.98px) {
-  #navbar-logo {
-    height: 40px;
-  }
+  /* Logo stays the same 48px as desktop here — it was shrunk to 40px on
+     phones before, which just read as "too small" next to the desktop
+     size once that got fixed, so this keeps it consistent everywhere. */
   .navbar-search-item {
     display: none;
   }
@@ -385,6 +402,12 @@ h1, h2, h3, h4, h5, .brand-font {
 }
 
 /* ---------- Editorial Board cards ---------- */
+/* Designation/affiliation/bio are pasted-in free text and often run 200+
+   characters with no natural break — center-aligning a paragraph that long
+   reads as a dense, ragged block. Left-aligning it with generous line-height
+   and a divider under the name/photo is what actually makes it readable;
+   board.js also turns likely paragraph breaks (runs of spaces where a line
+   break was probably lost) into real <br>s and email addresses into links. */
 .board-card-details {
   text-align: left;
   border-top: 1px solid #e5e0d3;
@@ -406,6 +429,24 @@ h1, h2, h3, h4, h5, .brand-font {
 footer.site-footer {
   background: var(--navy);
   color: #cdd6e3;
+}
+
+/* Same bug as the navbar logo: the HTML height="140" attribute on
+   #footer-logo had no matching CSS rule anywhere, so the global
+   img,svg{height:auto} safety net near the top of this file was the only
+   rule that applied — and once the footer's column goes full-width on a
+   phone, that let the logo balloon out to its full native pixel size.
+   A fixed, modest height here (smaller on phones, where it sits above
+   stacked text rather than beside two other columns) fixes it at every
+   width. */
+#footer-logo {
+  height: 90px;
+  width: auto;
+}
+@media (max-width: 767.98px) {
+  #footer-logo {
+    height: 64px;
+  }
 }
 
 /* ---------- Utility bits with no React equivalent to copy from ---------- */
