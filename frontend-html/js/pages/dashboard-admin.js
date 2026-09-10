@@ -126,7 +126,7 @@ if (adminUser) {
               <div class="small text-muted">${esc(s.author_name)} · ${esc(s.email)}</div>
             </td>
             <td class="small">${esc(s.journal_name || "—")}</td>
-            <td class="small" style="font-family:monospace;">${esc(s.payment_reference)}</td>
+            <td class="small" style="font-family:monospace;">${esc(s.payment_reference || "—")}</td>
             <td>
               <select class="form-select form-select-sm" data-sub-status="${s.id}">
                 ${Object.entries(SUBMISSION_STATUS_LABEL)
@@ -250,7 +250,7 @@ if (adminUser) {
         <div class="col-md-4"><label class="form-label small text-muted">Status</label>
           <select class="form-select form-select-sm" name="status">${statuses.map((s) => `<option value="${s}" ${s === p.status ? "selected" : ""}>${STATUS_LABELS[s] || s}</option>`).join("")}</select>
         </div>
-        ${idPrefix === "add" ? `<div class="col-md-8"><label class="form-label small text-muted">Article file (.docx, optional)</label><input type="file" accept=".docx" class="form-control form-control-sm" name="file" /></div>` : ""}
+        ${idPrefix === "add" ? `<div class="col-md-8"><label class="form-label small text-muted">Article file (.docx or .pdf, optional)</label><input type="file" accept=".docx,.pdf" class="form-control form-control-sm" name="file" /></div>` : ""}
         <div class="col-12 d-flex gap-2 mt-1">
           <button class="btn btn-sm btn-navy" type="submit">${idPrefix === "add" ? "Add Paper" : "Save Changes"}</button>
           ${idPrefix !== "add" ? `<button class="btn btn-sm btn-outline-navy" type="button" data-cancel-edit="${p.id}">Cancel</button>` : ""}
@@ -270,7 +270,7 @@ if (adminUser) {
             <td>${esc(p.journal_name)}</td>
             <td>${statusBadgeHtml(p.status)}</td>
             <td class="d-flex flex-wrap gap-1">
-              <a class="btn btn-sm btn-outline-navy" href="/api/papers/${p.id}/download" target="_blank" rel="noreferrer">.docx</a>
+              ${p.file_path ? `<a class="btn btn-sm btn-outline-navy" href="/api/papers/${p.id}/download" target="_blank" rel="noreferrer">${(p.original_filename || p.file_path).toLowerCase().endsWith(".pdf") ? ".pdf" : ".docx"}</a>` : ""}
               <button class="btn btn-sm btn-outline-navy" data-toggle-edit="${p.id}">Edit</button>
               ${p.status !== "published" ? `<button class="btn btn-sm btn-navy" data-publish="${p.id}">Publish</button>` : ""}
               <button class="btn btn-sm btn-outline-danger" data-delete-paper="${p.id}">Delete</button>
