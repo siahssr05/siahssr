@@ -5,11 +5,6 @@ api
     document.getElementById("contact-phone2").textContent = settings.contact_phone_2 || "";
     document.getElementById("contact-email").textContent = settings.contact_email || "";
     document.getElementById("contact-address").textContent = settings.contact_address || "";
-    const websiteLink = document.getElementById("contact-website");
-    if (settings.contact_website) {
-      websiteLink.href = settings.contact_website;
-      websiteLink.textContent = settings.contact_website;
-    }
   })
   .catch(() => {});
 
