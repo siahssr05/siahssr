@@ -15,6 +15,12 @@ body {
   font-family: "Merriweather", Georgia, serif;
   background: var(--cream);
   color: #22303f;
+  /* Safety net: if anything on any page ever ends up wider than the
+     viewport (a flex/table child that won't shrink, a long unbroken
+     string, ...), this stops the whole page from scrolling sideways
+     because of it — the offending element just gets clipped instead of
+     dragging the rest of the site with it. */
+  overflow-x: hidden;
 }
 
 a { color: inherit; }
@@ -36,11 +42,112 @@ h1, h2, h3, h4, h5, .brand-font {
 .navbar-search-form {
   min-width: 200px;
 }
-.navbar-search-form .input-group-text {
-  color: #9aa5b1;
+@media (max-width: 575.98px) {
+  .navbar-search-form { min-width: 160px; }
 }
-@media (max-width: 991.98px) {
-  .navbar-search-form { margin: 0.5rem 0; min-width: 0; }
+
+/* Search box as a rounded pill: one border on the outer .input-group
+   instead of Bootstrap's default two-piece border (icon box + input each
+   bordered separately, meeting in the middle), so it reads as a single
+   clean field. The gold ring on focus matches the .form-control:focus
+   rule already used everywhere else on the site. */
+.navbar-search-form .input-group {
+  border: 1px solid #e5e0d3;
+  border-radius: 999px;
+  overflow: hidden;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+.navbar-search-form .input-group:focus-within {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 0.15rem rgba(201, 155, 61, .2);
+}
+.navbar-search-form .input-group-text {
+  background: #fff;
+  border: 0;
+  color: #9aa5b1;
+  padding-left: 0.9rem;
+}
+.navbar-search-form .form-control {
+  border: 0;
+  padding-right: 0.9rem;
+  box-shadow: none !important;
+}
+
+/* Plain nav links (Home, About, Journals, Papers Archive, Contact) as
+   soft pill chips instead of bare text — a light navy tint on hover, and
+   a solid navy fill (matching the navbar buttons' color, not their border
+   or shimmer — links are navigation, the buttons are the call to action,
+   so they stay visually distinct) on whichever link matches the current
+   page (partials.js adds .active to it via data-nav). Same three-tier
+   sizing as the buttons: compact on phones, roomier on tablets and up. */
+.navbar-nav .nav-link {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.85rem;
+  border-radius: 999px;
+  color: var(--navy);
+  font-weight: 500;
+  background: rgba(11, 37, 69, 0.05);
+  border: 1px solid rgba(11, 37, 69, 0.15);
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+@media (min-width: 768px) {
+  .navbar-nav .nav-link {
+    padding: 0.4rem 0.85rem;
+    font-size: 0.9rem;
+  }
+}
+@media (min-width: 992px) {
+  .navbar-nav .nav-link {
+    padding: 0.45rem 1rem;
+    font-size: 0.95rem;
+  }
+}
+.navbar-nav .nav-link:hover {
+  background: rgba(11, 37, 69, 0.1);
+  border-color: rgba(11, 37, 69, 0.3);
+  color: var(--navy);
+}
+.navbar-nav .nav-link.active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Keeps every menu link visible on phones too, instead of collapsing into a
+   ☰ button. .navbar-inner (the flex row holding the logo + the link list)
+   and .navbar-nav both get min-width:0 — without that, a flex item is never
+   allowed to shrink below its content's natural width no matter what else
+   is set on it, which is exactly what pushed the *entire page* wider than
+   the screen last time (the body{overflow-x:hidden} above is a second,
+   independent safety net for that same class of bug, elsewhere on the
+   site). flex-wrap on .navbar-nav is what actually solves the fit problem:
+   on a laptop there's room for all 8 links + the button in one row, same
+   as always; on a phone they simply flow onto a second (or third) row at
+   their normal, readable size — nothing shrinks, nothing scrolls, nothing
+   needs to be tapped open. */
+.navbar-inner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  row-gap: 0.4rem;
+  min-width: 0;
+}
+.navbar-nav {
+  min-width: 0;
+}
+
+@media (max-width: 767.98px) {
+  #navbar-logo {
+    height: 40px;
+  }
+  .navbar-search-item {
+    display: none;
+  }
+  .navbar-nav {
+    gap: 0.5rem !important;
+    row-gap: 0.4rem !important;
+  }
 }
 
 .btn-navy {
@@ -60,6 +167,129 @@ h1, h2, h3, h4, h5, .brand-font {
 .btn-outline-navy:hover {
   background: var(--navy);
   color: #fff;
+}
+
+/* Navbar buttons only (Submit a Paper, Dashboard, Logout) — a soft light
+   streak sweeps right-to-left across the button on a loop, like a subtle
+   shine passing over it. Scoped to ".navbar-nav .btn" specifically so it
+   never touches btn-navy/btn-outline-navy elsewhere on the site (the hero
+   buttons, form submit buttons, etc.) — those keep their plain look.
+   The streak lives in ::after, positioned off to the right at the start of
+   each cycle and animated past the left edge; overflow:hidden on the
+   button clips it to the button's own rounded shape, so it never spills
+   onto neighboring buttons. Both the resting position (220%) and the end
+   position (-220%) are fully outside the button and therefore invisible,
+   so the loop's instant jump back to the start happens unseen — the
+   visible part is only the ~45% of the cycle where the streak is actually
+   crossing the button. */
+.navbar-nav .btn {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.navbar-nav .btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 55%;
+  transform: translateX(220%);
+  animation: navbar-btn-shimmer 3s ease-in-out infinite;
+  pointer-events: none;
+}
+.navbar-nav .btn-navy::after {
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0) 35%,
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0) 65%,
+    transparent 100%
+  );
+}
+.navbar-nav .btn-outline-navy::after {
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    rgba(11, 37, 69, 0) 35%,
+    rgba(11, 37, 69, 0.18) 50%,
+    rgba(11, 37, 69, 0) 65%,
+    transparent 100%
+  );
+}
+@keyframes navbar-btn-shimmer {
+  0% {
+    transform: translateX(220%);
+  }
+  45% {
+    transform: translateX(-220%);
+  }
+  100% {
+    transform: translateX(-220%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .navbar-nav .btn::after {
+    animation: none;
+    content: none;
+  }
+}
+
+/* Navbar buttons (Submit a Paper, Dashboard, Logout) — a proper filled
+   background plus a visible border, in three sizes: comfortable to tap on
+   a phone, a little roomier on a tablet, full-size on laptop/desktop.
+   Scoped to .navbar-nav so, like the shimmer above, this never touches
+   btn-navy/btn-outline-navy elsewhere on the site. */
+.navbar-nav .btn-navy,
+.navbar-nav .btn-outline-navy {
+  border-radius: 8px;
+  border-width: 2px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.8rem;
+  transition: background-color .2s ease, border-color .2s ease,
+    color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+@media (min-width: 768px) {
+  .navbar-nav .btn-navy,
+  .navbar-nav .btn-outline-navy {
+    padding: 0.5rem 1.1rem;
+    font-size: 0.85rem;
+  }
+}
+@media (min-width: 992px) {
+  .navbar-nav .btn-navy,
+  .navbar-nav .btn-outline-navy {
+    padding: 0.55rem 1.25rem;
+    font-size: 0.9rem;
+  }
+}
+
+.navbar-nav .btn-navy {
+  background: var(--navy);
+  border-color: var(--gold);
+  color: #fff;
+}
+.navbar-nav .btn-navy:hover,
+.navbar-nav .btn-navy:focus-visible {
+  background: var(--navy-light);
+  border-color: var(--gold);
+  box-shadow: 0 4px 14px rgba(11, 37, 69, 0.28);
+  transform: translateY(-1px);
+}
+
+.navbar-nav .btn-outline-navy {
+  background: #fff;
+  border-color: var(--navy);
+  color: var(--navy);
+}
+.navbar-nav .btn-outline-navy:hover,
+.navbar-nav .btn-outline-navy:focus-visible {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(11, 37, 69, 0.2);
+  transform: translateY(-1px);
 }
 
 .hero-section {
@@ -447,6 +677,4 @@ footer.site-footer {
   .auth-mobile-brand img { height: 34px; width: 34px; object-fit: contain; }
   .auth-shell-form { padding: 1.5rem 1rem 2.5rem; }
   .auth-card { padding: 2rem 1.5rem; }
-
-  
 }
