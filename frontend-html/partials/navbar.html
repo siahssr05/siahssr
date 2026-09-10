@@ -1,13 +1,21 @@
-<nav class="navbar navbar-expand-lg navbar-siahssr sticky-top py-2">
+<nav class="navbar navbar-siahssr sticky-top py-2">
   <div class="container">
-    <a class="navbar-brand d-flex align-items-center" href="/">
-      <img id="navbar-logo" src="/logo-site.png" alt="SIAHSSR logo" height="100" />
-    </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="mainNav">
-      <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+    <div class="navbar-inner">
+      <a class="navbar-brand d-flex align-items-center flex-shrink-0 me-3" href="/">
+        <img id="navbar-logo" src="/logo-site.png" alt="SIAHSSR logo" height="100" />
+      </a>
+      <!--
+        No collapse/hamburger here on purpose — the site owner wants every
+        link visible on phones too, not the usual "tap ☰ to open it" mobile
+        pattern. On a laptop, .navbar-inner and .navbar-nav below have all
+        the room they need and this sits in one row exactly like a normal
+        navbar. On a phone, 8 links + a button don't fit in one row at a
+        readable size, so flex-wrap (in theme.css) lets the links flow onto
+        a second (or third) row instead of shrinking to unreadable size or
+        needing a sideways scroll — everything stays visible at a normal
+        size, just taller.
+      -->
+      <ul class="navbar-nav flex-row flex-wrap align-items-center gap-2 gap-lg-3">
         <li class="nav-item"><a class="nav-link" data-nav="home" href="/">Home</a></li>
         <li class="nav-item"><a class="nav-link" data-nav="about" href="/about.html">About</a></li>
         <li class="nav-item"><a class="nav-link" data-nav="journals" href="/journals.html">Journals</a></li>
@@ -15,7 +23,7 @@
         <li class="nav-item"><a class="nav-link" data-nav="board" href="/board.html">Editorial Board</a></li>
         <li class="nav-item"><a class="nav-link" data-nav="notice" href="/notice.html">Notice</a></li>
         <li class="nav-item"><a class="nav-link" data-nav="contact" href="/contact.html">Contact</a></li>
-        <li class="nav-item ms-lg-2">
+        <li class="nav-item navbar-search-item">
           <form class="navbar-search-form" action="/papers.html" method="get" role="search">
             <div class="input-group input-group-sm">
               <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
@@ -23,16 +31,16 @@
             </div>
           </form>
         </li>
-        <li class="nav-item ms-lg-2" data-guest-only>
-          <a class="btn btn-navy btn-sm" href="/submit-paper.html"><i class="bi bi-file-earmark-arrow-up me-1"></i>Submit a Paper</a>
+        <li class="nav-item" data-guest-only>
+          <a class="btn btn-navy btn-sm text-nowrap" href="/submit-paper.html"><i class="bi bi-file-earmark-arrow-up me-1"></i>Submit a Paper</a>
         </li>
         <li class="nav-item" data-user-only style="display:none;">
-          <a class="btn btn-outline-navy btn-sm" id="navbar-dashboard-link" href="#">
+          <a class="btn btn-outline-navy btn-sm text-nowrap" id="navbar-dashboard-link" href="#">
             <i class="bi bi-speedometer2 me-1"></i><span id="navbar-user-name"></span>
           </a>
         </li>
         <li class="nav-item" data-user-only style="display:none;">
-          <button class="btn btn-navy btn-sm" id="navbar-logout-btn">Logout</button>
+          <button class="btn btn-navy btn-sm text-nowrap" id="navbar-logout-btn">Logout</button>
         </li>
       </ul>
     </div>
