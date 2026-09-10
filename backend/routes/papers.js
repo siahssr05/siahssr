@@ -194,6 +194,11 @@ router.get("/:id/download", optionalAuth, async (req, res) => {
       return res.status(403).json({ error: "You don't have access to this file" });
     }
 
+    // A paper added through the admin "manual add" form can be created
+    // without a file attached (the file input there is optional) — guard
+    // against that instead of throwing on paper.file_path.replace(null).
+    if (!paper.file_path) return res.status(404).json({ error: "No file is attached to this paper" });
+
     const absPath = path.join(__dirname, "..", paper.file_path.replace(/^\/+/, ""));
     if (!fs.existsSync(absPath)) return res.status(404).json({ error: "File not found on server" });
 
