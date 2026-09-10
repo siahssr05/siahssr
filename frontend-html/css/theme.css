@@ -160,7 +160,7 @@ h1, h2, h3, h4, h5, .brand-font {
    which is where the huge desktop logo bug came from. width:auto keeps
    it from stretching out of its own aspect ratio. */
 #navbar-logo {
-  height: 64px;
+  height: 80px;
   width: auto;
 }
 
