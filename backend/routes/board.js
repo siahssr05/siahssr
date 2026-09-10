@@ -23,15 +23,15 @@ router.get("/", async (req, res) => {
 // ---------- ADMIN: ADD BOARD MEMBER (with optional photo) ----------
 router.post("/", requireAuth, requireRole("admin"), uploadImage.single("photo"), async (req, res) => {
   try {
-    const { name, designation, affiliation, bio, expertise, journal_id, sort_order } = req.body;
+    const { name, designation, affiliation, bio, expertise, email, phone, journal_id, sort_order } = req.body;
     if (!name) return res.status(400).json({ error: "Name is required" });
 
     const photoPath = req.file ? `/uploads/board/${req.file.filename}` : null;
 
     const [result] = await pool.query(
-      `INSERT INTO editorial_board (name, designation, affiliation, photo_path, bio, expertise, journal_id, sort_order)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [name, designation || null, affiliation || null, photoPath, bio || null, expertise || null, journal_id || null, sort_order || 0]
+      `INSERT INTO editorial_board (name, designation, affiliation, photo_path, bio, expertise, email, phone, journal_id, sort_order)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [name, designation || null, affiliation || null, photoPath, bio || null, expertise || null, email || null, phone || null, journal_id || null, sort_order || 0]
     );
     res.status(201).json({ message: "Board member added", id: result.insertId });
   } catch (err) {
@@ -43,20 +43,20 @@ router.post("/", requireAuth, requireRole("admin"), uploadImage.single("photo"),
 // ---------- ADMIN: UPDATE BOARD MEMBER ----------
 router.put("/:id", requireAuth, requireRole("admin"), uploadImage.single("photo"), async (req, res) => {
   try {
-    const { name, designation, affiliation, bio, expertise, journal_id, sort_order } = req.body;
+    const { name, designation, affiliation, bio, expertise, email, phone, journal_id, sort_order } = req.body;
 
     if (req.file) {
       const photoPath = `/uploads/board/${req.file.filename}`;
       await pool.query(
-        `UPDATE editorial_board SET name=?, designation=?, affiliation=?, bio=?, expertise=?, journal_id=?, sort_order=?, photo_path=?
+        `UPDATE editorial_board SET name=?, designation=?, affiliation=?, bio=?, expertise=?, email=?, phone=?, journal_id=?, sort_order=?, photo_path=?
          WHERE id=?`,
-        [name, designation || null, affiliation || null, bio || null, expertise || null, journal_id || null, sort_order || 0, photoPath, req.params.id]
+        [name, designation || null, affiliation || null, bio || null, expertise || null, email || null, phone || null, journal_id || null, sort_order || 0, photoPath, req.params.id]
       );
     } else {
       await pool.query(
-        `UPDATE editorial_board SET name=?, designation=?, affiliation=?, bio=?, expertise=?, journal_id=?, sort_order=?
+        `UPDATE editorial_board SET name=?, designation=?, affiliation=?, bio=?, expertise=?, email=?, phone=?, journal_id=?, sort_order=?
          WHERE id=?`,
-        [name, designation || null, affiliation || null, bio || null, expertise || null, journal_id || null, sort_order || 0, req.params.id]
+        [name, designation || null, affiliation || null, bio || null, expertise || null, email || null, phone || null, journal_id || null, sort_order || 0, req.params.id]
       );
     }
     res.json({ message: "Board member updated" });
