@@ -374,6 +374,18 @@ h1, h2, h3, h4, h5, .brand-font {
   transform: translateY(-2px);
 }
 
+/* ---------- Editorial Board cards ---------- */
+.board-card-details {
+  text-align: left;
+  border-top: 1px solid #e5e0d3;
+  padding-top: 0.75rem;
+  line-height: 1.6;
+}
+.board-card-details a {
+  color: var(--navy);
+  font-weight: 600;
+}
+
 .badge-status-submitted { background: #6c757d; }
 .badge-status-under_review { background: #C99B3D; color: #fff; }
 .badge-status-accepted { background: #0E5C4A; }
