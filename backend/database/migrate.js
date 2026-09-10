@@ -73,6 +73,7 @@ async function runMigrations() {
   try {
     await connection.query(sql);
     await addMissingColumns(connection, dbName);
+    await widenAuthorNameColumns(connection, dbName);
     await relaxSubmissionsPaymentColumns(connection, dbName);
     await dedupeSeedData(connection);
     console.log(`Database schema is up to date (database: ${dbName}).`);
@@ -93,8 +94,8 @@ async function runMigrations() {
 // are always one of the hardcoded literals in NEW_PAPER_COLUMNS, never
 // user input, so building the ALTER statement by interpolation is safe.
 const NEW_PAPER_COLUMNS = [
-  { column: "author_name", definition: "VARCHAR(150) DEFAULT NULL" },
-  { column: "author_designation", definition: "VARCHAR(255) DEFAULT NULL" },
+  { column: "author_name", definition: "VARCHAR(1000) DEFAULT NULL" },
+  { column: "author_designation", definition: "VARCHAR(500) DEFAULT NULL" },
   { column: "author_institute", definition: "TEXT DEFAULT NULL" },
   { column: "author_email", definition: "VARCHAR(150) DEFAULT NULL" },
   { column: "author_contact", definition: "VARCHAR(30) DEFAULT NULL" },
@@ -110,6 +111,40 @@ async function addMissingColumns(connection, dbName) {
   for (const { column, definition } of NEW_PAPER_COLUMNS) {
     if (!existing.has(column)) {
       await connection.query(`ALTER TABLE papers ADD COLUMN \`${column}\` ${definition}`);
+    }
+  }
+}
+
+// Real submissions often pack in multiple co-authors with their degrees and
+// roles ("1Mr. X, M.A., Ph.D. Research Scholar.  2Dr. Y, ... Associate
+// Professor.") into the one "author name" field, since there's nowhere else
+// on the form for a second/third author. That easily runs past 150
+// characters, which made both `papers.author_name` and
+// `submissions.author_name` (and their matching designation columns) throw
+// "Data too long for column" and silently fail the admin's "Add Paper" form
+// and the public submission form alike. schema.sql's CREATE TABLE already
+// reflects the widened columns for a fresh database; this widens them on a
+// database that was provisioned before this change, the same
+// information_schema-gated MODIFY pattern as relaxSubmissionsPaymentColumns
+// below — a no-op once a database is already at (or past) the new width.
+const WIDENED_COLUMNS = [
+  { table: "papers", column: "author_name", definition: "VARCHAR(1000) DEFAULT NULL", minLength: 1000 },
+  { table: "papers", column: "author_designation", definition: "VARCHAR(500) DEFAULT NULL", minLength: 500 },
+  { table: "submissions", column: "author_name", definition: "VARCHAR(1000) NOT NULL", minLength: 1000 },
+  { table: "submissions", column: "designation", definition: "VARCHAR(500) DEFAULT NULL", minLength: 500 },
+];
+
+async function widenAuthorNameColumns(connection, dbName) {
+  for (const { table, column, definition, minLength } of WIDENED_COLUMNS) {
+    const [rows] = await connection.query(
+      `SELECT CHARACTER_MAXIMUM_LENGTH FROM information_schema.COLUMNS
+       WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+      [dbName, table, column]
+    );
+    if (rows.length === 0) continue; // table/column doesn't exist yet — nothing to widen
+    const currentLength = rows[0].CHARACTER_MAXIMUM_LENGTH;
+    if (currentLength === null || currentLength < minLength) {
+      await connection.query(`ALTER TABLE \`${table}\` MODIFY \`${column}\` ${definition}`);
     }
   }
 }
