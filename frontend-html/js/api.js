@@ -84,7 +84,7 @@ async function apiFetch(path, opts = {}) {
 const api = {
   get: (path, params) => apiFetch(`${path}${toQueryString(params)}`),
   post: (path, body) => apiFetch(path, { method: "POST", body: body === undefined ? undefined : body instanceof FormData ? body : JSON.stringify(body) }),
-  put: (path, body) => apiFetch(path, { method: "PUT", body: body === undefined ? undefined : JSON.stringify(body) }),
+  put: (path, body) => apiFetch(path, { method: "PUT", body: body === undefined ? undefined : body instanceof FormData ? body : JSON.stringify(body) }),
   patch: (path, body) => apiFetch(path, { method: "PATCH", body: body === undefined ? undefined : JSON.stringify(body) }),
   del: (path) => apiFetch(path, { method: "DELETE" }),
 };
