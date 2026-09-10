@@ -60,7 +60,7 @@ if (!paperId) {
         </div>
 
         <div class="d-flex flex-wrap gap-2 mb-4 d-print-none">
-          <a href="/api/papers/${paper.id}/download" class="btn btn-navy"><i class="bi bi-download me-1"></i> Download Paper (.docx)</a>
+          ${paper.file_path ? `<a href="/api/papers/${paper.id}/download" class="btn btn-navy"><i class="bi bi-download me-1"></i> Download Paper (${(paper.original_filename || paper.file_path).toLowerCase().endsWith(".pdf") ? ".pdf" : ".docx"})</a>` : ""}
         </div>
 
         <h6 class="fw-bold">Abstract</h6>
