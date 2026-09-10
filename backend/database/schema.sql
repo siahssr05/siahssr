@@ -187,7 +187,6 @@ INSERT INTO site_settings (setting_key, setting_value) VALUES
  ('contact_phone_1', '+91 96002 82239'),
  ('contact_phone_2', '+91 63830 63291'),
  ('contact_email', 'siahssr05@gmail.com'),
- ('contact_website', 'https://siahssr.co.in/'),
  ('contact_address', 'No. 26/1, Thabalkaar Anumatha Gounder Street, Reddiyur Post, Jolarpettai'),
  ('guidelines_text', 'Manuscripts should be original, unpublished work between 3,000-8,000 words, submitted as a Word (.docx) file with a title, abstract (150-250 words), 4-6 keywords, and references in APA style. Submissions are reviewed for originality, methodology, clarity, and significance before an accept/reject decision. Editable from the admin Site Content tab.')
 ON DUPLICATE KEY UPDATE setting_key=setting_key;
