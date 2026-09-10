@@ -4,7 +4,7 @@ const fs = require("fs");
 const bcrypt = require("bcryptjs");
 const pool = require("../config/db");
 const { requireAuth, requireRole } = require("../middleware/auth");
-const { uploadLogo, uploadDocument, uploadNotice, uploadPaper } = require("../utils/upload");
+const { uploadLogo, uploadDocument, uploadNotice, uploadPaperOrPdf } = require("../utils/upload");
 const { sendMail } = require("../utils/mailer");
 const { logAction } = require("../utils/audit");
 const { sendCsv } = require("../utils/csv");
@@ -290,7 +290,13 @@ router.put("/papers/:id", async (req, res) => {
 });
 
 // ---------- PAPERS: MANUAL ADD (admin creates a paper directly, e.g. a walk-in submission) ----------
-router.post("/papers", uploadPaper.single("file"), async (req, res) => {
+// Uses uploadPaperOrPdf (not uploadPaper) so an admin can attach either a
+// Word (.docx) or a PDF file here — this is the one paper-upload path an
+// admin drives directly, as opposed to the public docx-only submission form
+// (routes/public.js) and the logged-in author submission route just above
+// in this file's sibling papers.js, both of which are untouched and stay
+// docx-only.
+router.post("/papers", uploadPaperOrPdf.single("file"), async (req, res) => {
   try {
     const {
       title,
