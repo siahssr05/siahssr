@@ -2,11 +2,11 @@
 // form — for any member entered (or re-saved) since, m.email/m.phone are the
 // real source. Older members added before that field existed may still only
 // have the contact info buried inside the free-text designation/affiliation/
-// bio paragraph, so as a fallback for those, extractEmail/extractPhone below
-// pull a best-effort match out of that text. Either the real field or the
-// fallback, the card shows just the person's name plus an email and phone
-// number, each on its own labeled line — never the raw paragraph, and either
-// line is simply left out when nothing could be found (never shown blank).
+// bio text, so as a fallback for those, extractEmail/extractPhone below pull
+// a best-effort match out of that text. The card shows every detail on file
+// (Designation, Affiliation, Expertise, Bio, Email, Phone Number), each on
+// its own labeled line — never one run-on paragraph — and any line with
+// nothing to show is simply left out (never shown blank).
 function extractEmail(text) {
   // A lookbehind blocks the match from starting mid-word, and a lookahead
   // rejects a match that starts with a run of 4+ digits then a letter (a
@@ -43,8 +43,11 @@ api
           <img src="${esc(m.photo_path ? fileUrl(m.photo_path) : "/logo-site.png")}" alt="${esc(m.name)}" class="rounded-circle mx-auto mb-2" style="width:88px;height:88px;object-fit:cover;" />
           <h6 class="fw-bold mb-1">${esc(m.name)}</h6>
           ${m.journal_short_name ? `<span class="badge bg-navy mb-2">${esc(m.journal_short_name)} Board</span>` : ""}
-          ${m.expertise ? `<p class="small text-gold mb-2">${esc(m.expertise)}</p>` : ""}
           <div class="board-card-details text-start">
+            ${m.designation ? `<p class="small mb-1"><strong>Designation:</strong> ${esc(m.designation)}</p>` : ""}
+            ${m.affiliation ? `<p class="small mb-1"><strong>Affiliation:</strong> ${esc(m.affiliation)}</p>` : ""}
+            ${m.expertise ? `<p class="small mb-1"><strong>Expertise:</strong> ${esc(m.expertise)}</p>` : ""}
+            ${m.bio ? `<p class="small mb-1"><strong>Bio:</strong> ${esc(m.bio)}</p>` : ""}
             ${email ? `<p class="small mb-1"><strong>Email:</strong> <a href="mailto:${esc(email)}">${esc(email)}</a></p>` : ""}
             ${phone ? `<p class="small mb-0"><strong>Phone Number:</strong> ${esc(phone)}</p>` : ""}
           </div>
