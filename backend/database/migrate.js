@@ -75,6 +75,7 @@ async function runMigrations() {
     await addMissingColumns(connection, dbName);
     await widenAuthorNameColumns(connection, dbName);
     await relaxSubmissionsPaymentColumns(connection, dbName);
+    await seedFaqs(connection);
     await dedupeSeedData(connection);
     console.log(`Database schema is up to date (database: ${dbName}).`);
   } finally {
@@ -183,6 +184,44 @@ async function relaxSubmissionsPaymentColumns(connection, dbName) {
       await connection.query(`ALTER TABLE submissions MODIFY \`${column}\` ${definition}`);
     }
   }
+}
+
+// The FAQ page (frontend-html/js/pages/faq.js) was live but empty — `faqs`
+// had no seed data and nobody had added any from the admin dashboard yet.
+// This seeds 15 starter questions the first time the app boots against a
+// database with zero rows in `faqs`, gated on COUNT(*) = 0 rather than a
+// unique-key/ON-DUPLICATE-KEY pattern (see the dedupeSeedData comment below
+// for why those don't fit this codebase's seed tables) — simpler, and safe
+// because it only ever fires once: any row at all, whether from this seed or
+// an admin's own addition, permanently turns it into a no-op. Grounded in
+// the site's actual current settings/guidelines (public/settings row and
+// guidelines_text) rather than invented policy, so nothing here contradicts
+// what the rest of the site already tells a visitor.
+const FAQ_SEED = [
+  ["What is SIAHSSR?", "SIAHSSR (Sai Institute of Arts, Humanities and Social Science Research) publishes peer-reviewed academic journals covering development studies, the social sciences, and related interdisciplinary research areas.", "General", 1],
+  ["What journals does SIAHSSR publish?", "Our current journals, along with each one's scope and call for papers, are listed on the Journals page. New journals are added from time to time as the institute's research areas grow.", "General", 2],
+  ["Is there a submission or publication fee?", "No. There is currently no charge to submit or publish a paper with SIAHSSR.", "General", 3],
+  ["Are published papers freely available to read?", "Yes. Published papers are openly accessible on the Papers Archive at no cost to readers.", "General", 4],
+  ["Can I cite a published paper, and in what formats?", "Yes — every published paper's page includes a ready-made APA citation, plus BibTeX and RIS downloads for reference managers.", "General", 5],
+  ["Who do I contact if I have a question that isn't answered here?", "Reach out through the Contact page, or email us directly — our details are listed there.", "General", 6],
+  ["Do I need an account to submit a paper?", "No. Submissions go through a simple form on the Submit a Paper page — just fill in your details, select the journal, and upload your manuscript. No login or registration is required.", "Submission", 1],
+  ["What file format should I submit my manuscript in?", "Manuscripts must be submitted as a Word document (.docx). Other formats, including PDF, are not accepted through the public submission form.", "Submission", 2],
+  ["What is the word limit for a submission?", "Manuscripts should be original, unpublished work between 3,000 and 8,000 words.", "Submission", 3],
+  ["What should the abstract include?", "Include a 150–250 word abstract along with 4–6 keywords that describe your paper's subject and scope.", "Submission", 4],
+  ["What citation/referencing style is required?", "References should follow APA style throughout the manuscript.", "Submission", 5],
+  ["How are submissions evaluated?", "Every submission is reviewed for originality, methodology, clarity, and overall significance before an accept or reject decision is made.", "Submission", 6],
+  ["How will I know the outcome of my submission?", "The editorial team gets in touch using the email address you provide on the submission form once a decision has been made.", "Submission", 7],
+  ["Can I submit a paper that has already been published elsewhere?", "No — submissions must be original, unpublished work that isn't currently under review with another journal.", "Submission", 8],
+  ["Can a paper have more than one author?", "Yes. If your paper has co-authors, list all of them along with their designations and affiliations in the author details you provide with your submission.", "Submission", 9],
+];
+
+async function seedFaqs(connection) {
+  const [[{ count }]] = await connection.query(`SELECT COUNT(*) AS count FROM faqs`);
+  if (count > 0) return;
+  await connection.query(
+    `INSERT INTO faqs (question, answer, category, sort_order) VALUES ?`,
+    [FAQ_SEED]
+  );
 }
 
 // schema.sql's default-seed INSERTs for journals/about_items/documents use
