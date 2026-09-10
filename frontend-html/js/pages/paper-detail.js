@@ -36,8 +36,7 @@ if (!paperId) {
 
       content.innerHTML = `
         <p class="d-none d-print-block small text-muted mb-4">SIAHSSR — Sai Institute of Arts, Humanities and Social Science Research</p>
-
-        <div class="border-bottom border-3 pb-3 mb-4 d-flex justify-content-between align-items-start" style="border-color:#C99B3D;">
+        <div class="border-bottom border-3 pb-3 mb-4 d-flex flex-wrap justify-content-between align-items-start gap-2" style="border-color:#C99B3D;">
           <div>
             <span class="badge bg-navy mb-2">${esc(paper.short_name)}</span>
             <h4 class="brand-font mb-0">${esc(paper.journal_name)}</h4>
