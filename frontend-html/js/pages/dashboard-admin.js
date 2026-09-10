@@ -482,8 +482,10 @@ if (adminUser) {
       <div class="row g-2">
         <div class="col-md-4"><label class="form-label small text-muted">Name</label><input class="form-control form-control-sm" name="name" value="${esc(m.name || "")}" required /></div>
         <div class="col-md-4"><label class="form-label small text-muted">Designation</label><input class="form-control form-control-sm" name="designation" value="${esc(m.designation || "")}" /></div>
-        <div class="col-md-4"><label class="form-label small text-muted">Affiliation</label><input class="form-control form-control-sm" name="affiliation" value="${esc(m.affiliation || "")}" /></div>
-        <div class="col-md-8"><label class="form-label small text-muted">Expertise</label><input class="form-control form-control-sm" name="expertise" value="${esc(m.expertise || "")}" /></div>
+<div class="col-md-4"><label class="form-label small text-muted">Affiliation</label><input class="form-control form-control-sm" name="affiliation" value="${esc(m.affiliation || "")}" /></div>
+<div class="col-md-4"><label class="form-label small text-muted">Email</label><input type="email" class="form-control form-control-sm" name="email" value="${esc(m.email || "")}" /></div>
+<div class="col-md-4"><label class="form-label small text-muted">Phone Number</label><input class="form-control form-control-sm" name="phone" value="${esc(m.phone || "")}" /></div>
+<div class="col-md-8"><label class="form-label small text-muted">Expertise</label><input class="form-control form-control-sm" name="expertise" value="${esc(m.expertise || "")}" /></div>
         <div class="col-md-4"><label class="form-label small text-muted">Journal</label><select class="form-select form-select-sm" name="journal_id">${journalOptions}</select></div>
         <div class="col-12"><label class="form-label small text-muted">Bio</label><textarea class="form-control form-control-sm" name="bio" rows="2">${esc(m.bio || "")}</textarea></div>
         <div class="col-md-6"><label class="form-label small text-muted">Photo ${idPrefix === "edit" ? "(leave blank to keep current)" : ""}</label><input type="file" accept="image/*" class="form-control form-control-sm" name="photo" /></div>
