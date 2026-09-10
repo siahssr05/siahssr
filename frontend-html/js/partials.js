@@ -119,11 +119,6 @@ async function mountNavAndFooter() {
       setText("footer-phone2", settings.contact_phone_2);
       setText("footer-email", settings.contact_email);
       setText("footer-address", settings.contact_address);
-      const websiteLink = document.getElementById("footer-website");
-      if (websiteLink && settings.contact_website) {
-        websiteLink.href = settings.contact_website;
-        websiteLink.textContent = settings.contact_website;
-      }
     })
     .catch(() => {});
 
