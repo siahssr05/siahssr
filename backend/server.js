@@ -79,7 +79,7 @@ app.get("/sitemap.xml", async (req, res) => {
     const baseUrl = `${req.protocol}://${req.get("host")}`;
     const staticPaths = [
       "/", "/about.html", "/journals.html", "/papers.html", "/board.html",
-      "/events.html", "/guidelines.html", "/faq.html", "/contact.html",
+"/events.html", "/notice.html", "/guidelines.html", "/faq.html", "/contact.html",
     ];
     const [papers] = await pool.query(
       "SELECT id, updated_at FROM papers WHERE status = 'published' ORDER BY published_at DESC"
