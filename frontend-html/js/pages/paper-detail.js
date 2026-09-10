@@ -59,15 +59,10 @@ if (!paperId) {
         </div>
 
         <div class="d-flex flex-wrap gap-2 mb-4 d-print-none">
-          ${paper.file_path ? `<a href="/api/papers/${paper.id}/download" class="btn btn-navy"><i class="bi bi-download me-1"></i> Download Paper (${(paper.original_filename || paper.file_path).toLowerCase().endsWith(".pdf") ? ".pdf" : ".docx"})</a>` : ""}
-        </div>
+  ${paper.file_path ? `<a href="/api/papers/${paper.id}/download" class="btn btn-navy"><i class="bi bi-download me-1"></i> Download Paper (${(paper.original_filename || paper.file_path).toLowerCase().endsWith(".pdf") ? ".pdf" : ".docx"})</a>` : ""}
+</div>
 
-        <h6 class="fw-bold">Abstract</h6>
-        <p style="text-align:justify;">${esc(paper.abstract) || "<span class=\"text-muted\">No abstract available.</span>"}</p>
-
-        ${paper.keywords ? `<h6 class="fw-bold">Keywords</h6><p>${esc(paper.keywords)}</p>` : ""}
-
-        <div class="card-siahssr p-3 mt-4">
+<div class="card-siahssr p-3 mt-4">
           <h6 class="fw-bold mb-2">Cite this paper</h6>
           <p class="small mb-2" style="font-family:monospace;">${esc(citation)}</p>
           <div class="d-flex flex-wrap gap-2 d-print-none">
