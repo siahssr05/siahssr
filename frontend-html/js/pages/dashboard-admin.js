@@ -250,7 +250,10 @@ if (adminUser) {
         <div class="col-md-4"><label class="form-label small text-muted">Status</label>
           <select class="form-select form-select-sm" name="status">${statuses.map((s) => `<option value="${s}" ${s === p.status ? "selected" : ""}>${STATUS_LABELS[s] || s}</option>`).join("")}</select>
         </div>
-        ${idPrefix === "add" ? `<div class="col-md-8"><label class="form-label small text-muted">Article file (.docx or .pdf, optional)</label><input type="file" accept=".docx,.pdf" class="form-control form-control-sm" name="file" /></div>` : ""}
+        <div class="col-md-8">
+          <label class="form-label small text-muted">${idPrefix === "add" ? "Article file (.docx or .pdf, optional)" : `Replace article file (.docx or .pdf, optional)${p.original_filename ? ` — currently: ${esc(p.original_filename)}` : ""}`}</label>
+          <input type="file" accept=".docx,.pdf" class="form-control form-control-sm" name="file" />
+        </div>
         <div class="col-12 d-flex gap-2 mt-1">
           <button class="btn btn-sm btn-navy" type="submit">${idPrefix === "add" ? "Add Paper" : "Save Changes"}</button>
           ${idPrefix !== "add" ? `<button class="btn btn-sm btn-outline-navy" type="button" data-cancel-edit="${p.id}">Cancel</button>` : ""}
@@ -312,14 +315,20 @@ if (adminUser) {
           }
         });
 
+        // Found via DOM proximity (the button's own row, then the very next
+        // row) rather than document.getElementById(`edit-row-${id}`) — the
+        // ids are already unique per paper, but going through the DOM
+        // relationship directly means this can never accidentally grab the
+        // wrong row, no matter how many papers are on the page.
         contentEl.querySelectorAll("[data-toggle-edit]").forEach((btn) => {
           btn.addEventListener("click", () => {
-            document.getElementById(`edit-row-${btn.getAttribute("data-toggle-edit")}`).classList.toggle("d-none");
+            const editRow = btn.closest("tr")?.nextElementSibling;
+            if (editRow) editRow.classList.toggle("d-none");
           });
         });
         contentEl.querySelectorAll("[data-cancel-edit]").forEach((btn) => {
           btn.addEventListener("click", () => {
-            document.getElementById(`edit-row-${btn.getAttribute("data-cancel-edit")}`).classList.add("d-none");
+            btn.closest("tr")?.classList.add("d-none");
           });
         });
         contentEl.querySelectorAll("[data-edit-form]").forEach((form) => {
@@ -328,7 +337,7 @@ if (adminUser) {
             const id = form.getAttribute("data-edit-form");
             const fd = new FormData(form);
             try {
-              await api.put(`/admin/papers/${id}`, Object.fromEntries(fd.entries()));
+              await api.put(`/admin/papers/${id}`, fd);
               renderPapersTab(page);
             } catch (err) {
               alert(err.data?.error || "Failed to update paper");
@@ -482,10 +491,10 @@ if (adminUser) {
       <div class="row g-2">
         <div class="col-md-4"><label class="form-label small text-muted">Name</label><input class="form-control form-control-sm" name="name" value="${esc(m.name || "")}" required /></div>
         <div class="col-md-4"><label class="form-label small text-muted">Designation</label><input class="form-control form-control-sm" name="designation" value="${esc(m.designation || "")}" /></div>
-<div class="col-md-4"><label class="form-label small text-muted">Affiliation</label><input class="form-control form-control-sm" name="affiliation" value="${esc(m.affiliation || "")}" /></div>
-<div class="col-md-4"><label class="form-label small text-muted">Email</label><input type="email" class="form-control form-control-sm" name="email" value="${esc(m.email || "")}" /></div>
-<div class="col-md-4"><label class="form-label small text-muted">Phone Number</label><input class="form-control form-control-sm" name="phone" value="${esc(m.phone || "")}" /></div>
-<div class="col-md-8"><label class="form-label small text-muted">Expertise</label><input class="form-control form-control-sm" name="expertise" value="${esc(m.expertise || "")}" /></div>
+        <div class="col-md-4"><label class="form-label small text-muted">Affiliation</label><input class="form-control form-control-sm" name="affiliation" value="${esc(m.affiliation || "")}" /></div>
+        <div class="col-md-4"><label class="form-label small text-muted">Email</label><input type="email" class="form-control form-control-sm" name="email" value="${esc(m.email || "")}" /></div>
+        <div class="col-md-4"><label class="form-label small text-muted">Phone Number</label><input class="form-control form-control-sm" name="phone" value="${esc(m.phone || "")}" /></div>
+        <div class="col-md-8"><label class="form-label small text-muted">Expertise</label><input class="form-control form-control-sm" name="expertise" value="${esc(m.expertise || "")}" /></div>
         <div class="col-md-4"><label class="form-label small text-muted">Journal</label><select class="form-select form-select-sm" name="journal_id">${journalOptions}</select></div>
         <div class="col-12"><label class="form-label small text-muted">Bio</label><textarea class="form-control form-control-sm" name="bio" rows="2">${esc(m.bio || "")}</textarea></div>
         <div class="col-md-6"><label class="form-label small text-muted">Photo ${idPrefix === "edit" ? "(leave blank to keep current)" : ""}</label><input type="file" accept="image/*" class="form-control form-control-sm" name="photo" /></div>
