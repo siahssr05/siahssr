@@ -235,7 +235,11 @@ router.delete("/papers/:id", async (req, res) => {
 });
 
 // ---------- PAPERS: FULL EDIT (admin CRUD — any field, any status) ----------
-router.put("/papers/:id", async (req, res) => {
+// uploadPaperOrPdf (not uploadPaper) so an admin can replace the file with
+// either a Word (.docx) or a PDF here, same as the manual-add route below —
+// the file is optional on edit, since most edits are just correcting a
+// field and shouldn't require re-uploading the document.
+router.put("/papers/:id", uploadPaperOrPdf.single("file"), async (req, res) => {
   try {
     const {
       title,
@@ -256,6 +260,7 @@ router.put("/papers/:id", async (req, res) => {
     if (!title || !journal_id) return res.status(400).json({ error: "Title and journal are required" });
     const allowedStatuses = ["submitted", "under_review", "accepted", "rejected", "published", "withdrawn"];
     const finalStatus = allowedStatuses.includes(status) ? status : undefined;
+    const newFilePath = req.file ? `/uploads/papers/${req.file.filename}` : undefined;
 
     await pool.query(
       `UPDATE papers SET
@@ -263,6 +268,7 @@ router.put("/papers/:id", async (req, res) => {
         author_name = ?, author_designation = ?, author_institute = ?, author_email = ?, author_contact = ?,
         journal_id = ?, volume = ?, issue = ?, doi = ?
         ${finalStatus ? ", status = ?" : ""}
+        ${newFilePath ? ", file_path = ?, original_filename = ?" : ""}
        WHERE id = ?`,
       [
         title,
@@ -278,6 +284,7 @@ router.put("/papers/:id", async (req, res) => {
         issue || null,
         doi || null,
         ...(finalStatus ? [finalStatus] : []),
+        ...(newFilePath ? [newFilePath, req.file.originalname] : []),
         req.params.id,
       ]
     );
