@@ -3,6 +3,15 @@ const FALLBACK_LOGO = { IJDSSR: "/logo-ijdssr.png", JMRH: "/logo-jmrh.svg" };
 api
   .get("/journals")
   .then((journals) => {
+    // With just one journal live, this "Our Journals" listing page is a
+    // redundant extra click before reaching the only thing on it — so skip
+    // straight to that journal's own page instead. The moment a second
+    // journal exists, there's something to actually choose between, and the
+    // listing below renders normally again.
+    if (journals.length === 1) {
+      window.location.replace(`/journal-detail.html?id=${journals[0].id}`);
+      return;
+    }
     document.getElementById("journals-list").innerHTML = journals
       .map((j) => {
         const logo = j.logo_path ? fileUrl(j.logo_path) : FALLBACK_LOGO[j.short_name] || "/logo-site.png";
