@@ -16,13 +16,19 @@ function makeStorage(subfolder) {
   });
 }
 
-const paperFilter = (req, file, cb) => {
-  const isDocxMime =
-    file.mimetype === "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-  const isDocxExt = file.originalname.toLowerCase().endsWith(".docx");
+// Paper submissions accept Word (.docx) or PDF. Both the MIME type and the file
+// extension must agree, so a renamed file of another type is rejected.
+const PAPER_TYPES = {
+  ".docx": ["application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
+  ".pdf": ["application/pdf"],
+};
 
-  if (isDocxMime && isDocxExt) cb(null, true);
-  else cb(new Error("Only Word (.docx) files are allowed for paper submissions"));
+const paperFilter = (req, file, cb) => {
+  const ext = path.extname(file.originalname).toLowerCase();
+  const allowedMimes = PAPER_TYPES[ext];
+
+  if (allowedMimes && allowedMimes.includes(file.mimetype)) cb(null, true);
+  else cb(new Error("Only Word (.docx) or PDF (.pdf) files are allowed for paper submissions"));
 };
 
 const imageFilter = (req, file, cb) => {
