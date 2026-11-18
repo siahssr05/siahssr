@@ -1,7 +1,7 @@
 // Public, no-account paper submission: pay via UPI, self-declare the
 // payment (checkbox + reference number — there's no payment gateway wired
 // up, so this is a manual/self-declared confirmation admin verifies before
-// review), then fill in the 7 fields and attach the .docx.
+// review), then fill in the 7 fields and attach the .docx or .pdf.
 
 api
   .get("/journals")
@@ -55,14 +55,17 @@ form.addEventListener("submit", async (e) => {
 
   const file = document.getElementById("paper-file-input").files[0];
   if (!file) {
-    errorBox.textContent = "Please attach your article as a Word (.docx) file";
+    errorBox.textContent = "Please attach your article as a Word (.docx) or PDF file";
     errorBox.style.display = "";
     return;
   }
-  const isDocxType = file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-  const isDocxExt = file.name.toLowerCase().endsWith(".docx");
-  if (!isDocxType || !isDocxExt) {
-    errorBox.textContent = "Only Word (.docx) files are allowed";
+  const lowerName = file.name.toLowerCase();
+  const isDocx =
+    lowerName.endsWith(".docx") &&
+    file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+  const isPdf = lowerName.endsWith(".pdf") && file.type === "application/pdf";
+  if (!isDocx && !isPdf) {
+    errorBox.textContent = "Only Word (.docx) or PDF (.pdf) files are allowed";
     errorBox.style.display = "";
     return;
   }
