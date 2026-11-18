@@ -136,7 +136,7 @@ if (adminUser) {
             </td>
             <td class="small text-muted">${formatDateTime(s.created_at)}</td>
             <td class="d-flex flex-wrap gap-1">
-              <a class="btn btn-sm btn-outline-navy" href="/api/admin/submissions/${s.id}/download" target="_blank" rel="noreferrer">.docx</a>
+              <a class="btn btn-sm btn-outline-navy" href="/api/admin/submissions/${s.id}/download" target="_blank" rel="noreferrer">Download</a>
               ${canPublish ? `<button class="btn btn-sm btn-navy" data-toggle-publish="${s.id}">Publish</button>` : ""}
               <button class="btn btn-sm btn-outline-danger" data-delete-sub="${s.id}">Delete</button>
             </td>
@@ -250,7 +250,7 @@ if (adminUser) {
         <div class="col-md-4"><label class="form-label small text-muted">Status</label>
           <select class="form-select form-select-sm" name="status">${statuses.map((s) => `<option value="${s}" ${s === p.status ? "selected" : ""}>${STATUS_LABELS[s] || s}</option>`).join("")}</select>
         </div>
-        ${idPrefix === "add" ? `<div class="col-md-8"><label class="form-label small text-muted">Article file (.docx, optional)</label><input type="file" accept=".docx" class="form-control form-control-sm" name="file" /></div>` : ""}
+        ${idPrefix === "add" ? `<div class="col-md-8"><label class="form-label small text-muted">Article file (.docx or .pdf, optional)</label><input type="file" accept=".docx,.pdf" class="form-control form-control-sm" name="file" /></div>` : ""}
         <div class="col-12 d-flex gap-2 mt-1">
           <button class="btn btn-sm btn-navy" type="submit">${idPrefix === "add" ? "Add Paper" : "Save Changes"}</button>
           ${idPrefix !== "add" ? `<button class="btn btn-sm btn-outline-navy" type="button" data-cancel-edit="${p.id}">Cancel</button>` : ""}
@@ -270,7 +270,7 @@ if (adminUser) {
             <td>${esc(p.journal_name)}</td>
             <td>${statusBadgeHtml(p.status)}</td>
             <td class="d-flex flex-wrap gap-1">
-              <a class="btn btn-sm btn-outline-navy" href="/api/papers/${p.id}/download" target="_blank" rel="noreferrer">.docx</a>
+              <a class="btn btn-sm btn-outline-navy" href="/api/papers/${p.id}/download" target="_blank" rel="noreferrer">Download</a>
               <button class="btn btn-sm btn-outline-navy" data-toggle-edit="${p.id}">Edit</button>
               ${p.status !== "published" ? `<button class="btn btn-sm btn-navy" data-publish="${p.id}">Publish</button>` : ""}
               <button class="btn btn-sm btn-outline-danger" data-delete-paper="${p.id}">Delete</button>
